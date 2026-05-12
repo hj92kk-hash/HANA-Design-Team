@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>하나사인몰 디자인팀 업무일지</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic','맑은 고딕',sans-serif; background:#f5f3ef; color:#222; padding:16px; font-size:14px; }
+  .wrap { max-width:1400px; margin:0 auto; }
+
+  header { background:#475569; color:#fff; padding:16px 20px; border-radius:8px 8px 0 0;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+  header h1 { font-size:18px; font-weight:700; }
+  .date-box { display:flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); padding:4px 8px; border-radius:6px; }
+  .date-box input { background:transparent; border:none; color:#fff; font-size:14px; font-family:inherit; cursor:pointer; font-weight:600; }
+  .date-box input::-webkit-calendar-picker-indicator { filter:invert(1); cursor:pointer; }
+  .date-nav { background:rgba(255,255,255,0.2); color:#fff; border:none; border-radius:4px;
+    width:26px; height:26px; cursor:pointer; font-size:14px; font-family:inherit;
+    display:flex; align-items:center; justify-content:center; transition:all .15s; }
+  .date-nav:hover { background:rgba(255,255,255,0.4); }
+  .date-nav.today-btn { width:auto; padding:0 10px; font-size:12px; font-weight:600; }
+
+  .tabs { display:flex; background:#64748b; overflow-x:auto; }
+  .tab { flex:1; min-width:100px; padding:12px 16px; color:#cbd5e0; cursor:pointer;
+    text-align:center; border:none; background:transparent; font-size:14px; font-weight:600;
+    font-family:inherit; border-right:1px solid #475569; transition:background .15s; }
+  .tab:hover { background:#7c8ba1; color:#fff; }
+  .tab.active { background:#fff; color:#475569; }
+  .tab.report-tab { background:#7a9b95; color:#fff; }
+  .tab.report-tab.active { background:#fff; color:#5d7d77; }
+  .tab.cs-tab { background:#a87a7a; color:#fff; }
+  .tab.cs-tab.active { background:#fff; color:#8e5e5e; }
+  .tab .count { display:inline-block; background:#b87060; color:#fff; font-size:11px;
+    padding:1px 6px; border-radius:10px; margin-left:4px; font-weight:700; }
+  .tab.active .count { background:#475569; }
+  .tab.report-tab .count, .tab.cs-tab .count { background:rgba(255,255,255,0.3); }
+
+  .toolbar { background:#fff; padding:6px 14px; display:flex; justify-content:space-between;
+    align-items:center; border-bottom:1px solid #e1e4e8; flex-wrap:wrap; gap:6px; }
+  .toolbar-left { display:flex; gap:6px; flex-wrap:wrap; }
+  .btn { padding:6px 12px; border:1px solid #d0d7de; background:#f6f8fa; border-radius:5px;
+    cursor:pointer; font-size:13px; font-family:inherit; transition:all .15s; }
+  .btn:hover { background:#eaeef2; }
+  .btn-primary { background:#4a6585; color:#fff; border-color:#4a6585; }
+  .btn-primary:hover { background:#3d5571; }
+  .btn-info { background:#7a9b95; color:#fff; border-color:#7a9b95; }
+  .btn-info:hover { background:#5d7d77; }
+  .btn-danger { background:#a85555; color:#fff; border-color:#a85555; }
+  .btn-sm { padding:3px 8px; font-size:12px; }
+
+  .panel { background:#fff; padding:16px; border-radius:0 0 8px 8px; box-shadow:0 1px 3px rgba(0,0,0,0.05); }
+
+  .section { margin-bottom:10px; border:1px solid #e1e4e8; border-radius:6px; overflow:hidden; }
+  .section-header { padding:6px 12px; font-weight:700; font-size:13px;
+    display:flex; justify-content:space-between; align-items:center; color:#fff; }
+  .section-yesterday .section-header { background:#b08968; }
+  .section-today     .section-header { background:#6b89a8; }
+  /* "오늘 받은 업무" 행 배경색 (y10 = #f4ede0) */
+  #tbody-today tr { background:#f4ede0; }
+  #tbody-today tr:hover { background:#ebe3d2; }
+  .section-done      .section-header { background:#7a9b7e; }
+  .section-cancel    .section-header { background:#94a3b8; }
+  .section-pending   .section-header { background:#9c8eb0; }
+  .section-cs        .section-header { background:#a87a7a; }
+  .section-cs-history .section-header { background:#7a4d4d; }
+  .section-done-history .section-header { background:#3f5d44; }
+  .section-header .label-left { display:flex; align-items:center; gap:8px; }
+  .section-header .badge { background:rgba(255,255,255,0.25); padding:2px 8px; border-radius:10px; font-size:12px; }
+
+  table { width:100%; border-collapse:collapse; }
+  thead { background:#f6f8fa; }
+  th, td { padding:3px 8px; border-bottom:1px solid #e1e4e8; text-align:left; vertical-align:middle; line-height:1.3; }
+  th { font-weight:600; font-size:12px; color:#57606a; padding:5px 8px; }
+  tbody tr { height:28px; }
+  tbody tr:hover { background:#f6f8fa; }
+  .col-no { width:36px; text-align:center; color:#8b949e; font-size:12px; }
+  .col-date { width:110px; }
+  .col-name { width:420px; }
+  .col-memo { width:180px; }
+  .col-act { width:170px; text-align:center; }
+
+  td input[type="text"], td input[type="date"] { width:100%; border:1px solid transparent;
+    padding:2px 6px; border-radius:3px; font-size:13px; font-family:inherit; background:transparent; line-height:1.3; }
+  td input:focus { border-color:#4a6585; background:#fff; outline:none; box-shadow:0 0 0 2px rgba(74,101,133,0.15); }
+  td input:hover { background:#fff; border-color:#d0d7de; }
+  .empty { text-align:center; padding:12px; color:#8b949e; font-size:12px; }
+
+  .move-btns { display:flex; gap:2px; justify-content:center; flex-wrap:nowrap; }
+  .icon-btn { border:1px solid #d0d7de; background:#fff; border-radius:3px; cursor:pointer;
+    padding:2px 5px; font-size:11px; font-family:inherit; transition:all .15s; white-space:nowrap; line-height:1.4; }
+  .icon-btn:hover { background:#f6f8fa; }
+  .icon-btn.move-next { color:#5d7d62; border-color:#5d7d62; }
+  .icon-btn.move-back { color:#b08968; border-color:#b08968; }
+  .icon-btn.move-cancel { color:#94a3b8; border-color:#94a3b8; }
+  .icon-btn.move-pending { color:#9c8eb0; border-color:#9c8eb0; }
+  .icon-btn.delete { color:#a85555; border-color:#a85555; }
+
+  .status-select { padding:2px 6px; border:1.5px solid #6b89a8; border-radius:4px; background:#fff;
+    font-size:12px; font-family:inherit; color:#475569; font-weight:600; cursor:pointer; min-width:120px; height:24px; }
+  .status-select:hover { background:#eaf0f5; }
+  .status-select:focus { outline:2px solid rgba(107,137,168,0.3); }
+
+  .save-status { color:#5d7d62; font-size:12px; margin-left:8px; }
+
+  .designer-banner { background:linear-gradient(135deg,#6b89a8 0%,#5b7896 100%); color:#fff;
+    padding:14px 18px; display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:10px; border-bottom:1px solid #5b7896; }
+  .designer-banner .main { font-size:14px; font-weight:600;
+    display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
+  .designer-banner .date-tag { font-size:14px; padding:5px 10px; background:rgba(0,0,0,0.15); border-radius:5px; }
+  .designer-banner .banner-stat { display:inline-flex; align-items:center; gap:4px; font-size:14px; }
+  .designer-banner .number { display:inline-block; font-size:22px; font-weight:800;
+    margin:0 2px; padding:2px 10px; background:rgba(255,255,255,0.2); border-radius:6px;
+    min-width:44px; text-align:center; }
+  .designer-banner .number-d { background:rgba(122,155,126,0.7); }
+  .designer-banner .meta { font-size:12px; opacity:0.85; }
+  .designer-banner .who { background:rgba(255,255,255,0.95); color:#5b7896;
+    padding:4px 12px; border-radius:12px; font-weight:700; font-size:14px; }
+
+  .summary-bar { display:flex; gap:12px; padding:6px 14px; background:#f6f8fa;
+    border-bottom:1px solid #e1e4e8; flex-wrap:wrap; }
+  .summary-item { display:flex; align-items:center; gap:6px; font-size:13px; }
+  .summary-dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot-y { background:#b08968; } .dot-t { background:#6b89a8; } .dot-d { background:#7a9b7e; }
+  .dot-c { background:#94a3b8; } .dot-p { background:#9c8eb0; }
+
+  .footer-info { text-align:center; color:#8b949e; font-size:12px; margin-top:12px; padding:8px; }
+
+  /* 보고 화면 */
+  .report-title { font-size:20px; font-weight:700; color:#475569;
+    border-bottom:3px solid #7a9b95; padding-bottom:10px; margin-bottom:16px;
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:8px; }
+  .report-title .meta { font-size:13px; color:#8b949e; font-weight:500; }
+  .kpi-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; margin-bottom:16px; }
+  .kpi { background:#fff; border:1px solid #e1e4e8; padding:12px 14px; border-radius:6px; border-left:4px solid #ddd; }
+  .kpi.k-y { border-left-color:#b08968; } .kpi.k-t { border-left-color:#6b89a8; }
+  .kpi.k-d { border-left-color:#7a9b7e; } .kpi.k-p { border-left-color:#9c8eb0; }
+  .kpi.k-c { border-left-color:#94a3b8; } .kpi.k-all { border-left-color:#7a9b95; background:#eef2ee; }
+  .kpi.k-cs { border-left-color:#a87a7a; background:#f5ecec; }
+  .kpi .label { color:#57606a; font-size:11px; margin-bottom:4px; }
+  .kpi .value { font-size:24px; font-weight:700; color:#475569; }
+  .kpi .sub { font-size:11px; color:#8b949e; }
+  .kpi .detail { font-size:12px; color:#57606a; margin-top:6px; padding-top:6px;
+    border-top:1px dashed #e1e4e8; line-height:1.7; }
+  .kpi .detail .pill {
+    display:inline-block; margin:1px 6px 1px 0;
+    background:#f6f8fa; padding:2px 8px; border-radius:10px; font-size:11px;
+  }
+  .kpi .detail .pill strong { color:#4a6585; margin-right:3px; }
+  .kpi .detail .pill.cs strong { color:#8e5e5e; }
+
+  .report-card { background:#fff; border:1px solid #e1e4e8; border-radius:6px; padding:14px 16px; margin-bottom:16px; }
+  .report-card h3 { font-size:15px; color:#475569; margin-bottom:10px; padding-bottom:7px;
+    border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; }
+  .report-card h3 .extra { font-size:12px; color:#8b949e; font-weight:500; }
+
+  .matrix { width:100%; border-collapse:collapse; font-size:12px; }
+  .matrix th, .matrix td { padding:4px 7px; border-bottom:1px solid #eaeef2; text-align:center; line-height:1.3; }
+  .matrix th { background:#f6f8fa; color:#57606a; font-size:12px; }
+  .matrix th.head-y { background:#f1ece4; color:#8c6347; }
+  .matrix th.head-t { background:#e3ebf2; color:#4d6c84; }
+  .matrix th.head-d { background:#e7ece5; color:#5d7d62; }
+  .matrix th.head-p { background:#f3eafa; color:#736182; }
+  .matrix th.head-c { background:#e8eaed; color:#5c6669; }
+  .matrix td.designer { font-weight:700; text-align:left; cursor:pointer; color:#4a6585; }
+  .matrix td.designer:hover { text-decoration:underline; }
+  .matrix td.zero { color:#ccc; }
+  .matrix td.total { background:#f6f8fa; font-weight:700; }
+  .matrix tfoot td { background:#eef2f6; font-weight:700; border-top:2px solid #475569; }
+
+  .designer-bar { margin-bottom:12px; }
+  .db-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:13px; }
+  .db-name { font-weight:700; cursor:pointer; color:#475569; }
+  .db-name:hover { color:#4a6585; }
+  .db-name .pill { display:inline-block; background:#e7ece5; color:#5d7d62;
+    font-size:10px; padding:1px 6px; border-radius:8px; margin-left:5px; font-weight:600; }
+  .db-stat { color:#57606a; font-size:12px; }
+  .bar-row { display:flex; height:22px; border-radius:4px; overflow:hidden; background:#f5f5f5; }
+  .bar-seg { height:100%; display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:11px; font-weight:700; }
+  .bar-y { background:#b08968; } .bar-t { background:#6b89a8; } .bar-d { background:#7a9b7e; }
+  .bar-p { background:#9c8eb0; } .bar-c { background:#94a3b8; }
+
+  .legend { display:flex; gap:12px; flex-wrap:wrap; font-size:11px; color:#57606a; margin-top:8px; }
+  .legend-item { display:flex; align-items:center; gap:4px; }
+  .legend-box { width:11px; height:11px; border-radius:2px; }
+
+  .report-list { width:100%; border-collapse:collapse; font-size:12px; }
+  .report-list th, .report-list td { padding:3px 7px; border-bottom:1px solid #eaeef2; text-align:left; vertical-align:middle; line-height:1.3; }
+  .report-list th { background:#f6f8fa; font-size:11px; color:#57606a; font-weight:600; padding:5px 7px; }
+  .report-list .stat-tag { display:inline-block; padding:2px 7px; border-radius:10px;
+    font-size:11px; font-weight:700; color:#fff; }
+  .stat-yesterday { background:#b08968; } .stat-today { background:#6b89a8; }
+  .stat-done { background:#7a9b7e; } .stat-pending { background:#9c8eb0; } .stat-cancel { background:#94a3b8; }
+  .designer-tag { background:#f0f0f0; padding:1px 7px; border-radius:9px; font-size:11px; font-weight:600; }
+
+  .row-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:16px; }
+  @media (max-width:900px) { .row-2col { grid-template-columns:1fr; } }
+
+  .donut-wrap { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .donut { width:180px; height:180px; flex-shrink:0; }
+  .donut-legend { flex:1; min-width:160px; max-height:220px; overflow-y:auto; }
+  .donut-legend .li { display:flex; justify-content:space-between; align-items:center;
+    padding:4px 2px; border-bottom:1px dashed #eee; font-size:13px; }
+  .donut-legend .li:last-child { border-bottom:none; }
+  .donut-legend .li-left { display:flex; align-items:center; gap:6px; }
+  .donut-legend .lb { display:inline-block; width:12px; height:12px; border-radius:2px; }
+  .donut-empty { text-align:center; padding:30px 10px; color:#aaa; font-size:13px; width:100%; }
+
+  /* 키워드 모달 */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1000;
+    display:flex; align-items:center; justify-content:center; }
+  .modal { background:#fff; border-radius:8px; width:90%; max-width:600px;
+    max-height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,0.2); }
+  .modal-head { padding:14px 18px; border-bottom:1px solid #e1e4e8;
+    display:flex; justify-content:space-between; align-items:center; }
+  .modal-head h3 { font-size:16px; color:#475569; }
+  .modal-close { background:none; border:none; font-size:22px; cursor:pointer;
+    color:#8b949e; padding:0; line-height:1; }
+  .modal-body { padding:16px 18px; overflow-y:auto; flex:1; }
+  .modal-foot { padding:12px 18px; border-top:1px solid #e1e4e8;
+    display:flex; justify-content:flex-end; gap:8px; }
+  .kw-add-row { display:flex; gap:6px; margin-bottom:14px; }
+  .kw-add-row input { flex:1; padding:7px 10px; border:1px solid #d0d7de; border-radius:5px;
+    font-size:14px; font-family:inherit; }
+  .kw-add-row input:focus { border-color:#4a6585; outline:none; box-shadow:0 0 0 2px rgba(74,101,133,0.15); }
+  .kw-search { width:100%; padding:6px 10px; border:1px solid #d0d7de; border-radius:5px;
+    font-size:13px; font-family:inherit; margin-bottom:10px; }
+  .kw-list { display:flex; flex-wrap:wrap; gap:6px; }
+  .kw-tag { background:#eef1f5; border:1px solid #cdd6e0; color:#4a6585;
+    padding:5px 10px; border-radius:14px; font-size:13px;
+    display:inline-flex; align-items:center; gap:5px; }
+  .kw-tag.preset { background:#f6f8fa; border-color:#d0d7de; color:#57606a; }
+  .kw-tag .x { background:rgba(0,0,0,0.06); color:inherit; border:none; border-radius:50%;
+    width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:12px; line-height:1; font-family:inherit; padding:0; }
+  .kw-tag .x:hover { background:#a85555; color:#fff; }
+  .kw-empty { color:#8b949e; font-size:13px; padding:20px; text-align:center; }
+  .kw-section-title { font-size:12px; color:#8b949e; font-weight:600;
+    margin:12px 0 6px; text-transform:uppercase; }
+
+  @media print {
+    body { background:#fff; padding:0; font-size:11px; }
+    .toolbar, .icon-btn, .btn, .move-btns, .col-act, .tabs, .modal-backdrop { display:none !important; }
+    .section { page-break-inside:avoid; }
+    header { background:#fff !important; color:#000 !important; border-bottom:2px solid #000; }
+    .report-card { page-break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>하나사인몰 디자인팀 업무일지</h1>
+    <div class="date-box">
+      <span>📅 작업일자:</span>
+      <button class="date-nav" onclick="shiftDate(-1)" title="이전날">◀</button>
+      <input type="date" id="workDate">
+      <button class="date-nav" onclick="shiftDate(1)" title="다음날">▶</button>
+      <button class="date-nav today-btn" onclick="goToday()" title="오늘로">오늘</button>
+      <span id="dayOfWeek"></span>
+    </div>
+  </header>
+
+  <div class="tabs" id="tabs"></div>
+
+  <!-- 전역 툴바: 모든 탭에서 공통 (NAS 연결 / 자동저장 상태 / 실행취소) -->
+  <div class="global-toolbar" style="background:#eef3f9; border-bottom:1px solid #c8d4e0; padding:8px 14px; display:flex; flex-wrap:wrap; gap:8px; align-items:center;">
+    <span style="font-size:12px; color:#64748b; font-weight:700; margin-right:4px; padding:2px 8px; background:#fff; border-radius:4px; border:1px solid #d0d7de;">🌐 전체 공용</span>
+    <button class="btn btn-info" onclick="connectNasFolder()" id="btnNasConnect" title="NAS 공용 폴더에 자동 저장 활성화 (한 번만 설정)">🔗 NAS 폴더 연결</button>
+    <button class="btn" onclick="exportNasData()" title="worklog-data.js 수동 다운로드">📤 NAS 배포</button>
+    <button class="btn" onclick="reloadFromNas()" title="NAS의 최신 데이터로 다시 불러오기">🔄 NAS 새로고침</button>
+    <button class="btn" onclick="undo()" id="btnUndo" title="실행 취소 (Ctrl+Z, 최근 10단계)">↶ 실행취소 <span id="undoCount" style="font-size:11px; opacity:0.7;"></span></button>
+    <span id="dataSrcIndicator" style="font-size:11px; padding:3px 8px; border-radius:10px; margin-left:auto; background:#eef; color:#345;"></span>
+    <span class="save-status" id="saveStatus" style="font-size:12px; color:#7a9b7e; font-weight:600;">자동저장됨</span>
+  </div>
+
+  <!-- 팀 보고 -->
+  <div id="reportView" style="display:none;">
+    <div class="panel">
+      <div class="report-title">
+        <div>📊 팀 전체 업무일지 보고 <span id="reportDate" style="font-size:14px; color:#7a9b95;"></span></div>
+        <div class="meta" id="reportSubtitle"></div>
+      </div>
+      <div class="kpi-row" id="reportKpi"></div>
+
+      <div class="row-2col">
+        <div class="report-card">
+          <h3>👥 디자이너별 업무량 <span class="extra">활성 많은 순</span></h3>
+          <div id="reportBars"></div>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-box bar-y"></span>진행중</div>
+            <div class="legend-item"><span class="legend-box bar-t"></span>오늘</div>
+            <div class="legend-item"><span class="legend-box bar-d"></span>완료</div>
+            <div class="legend-item"><span class="legend-box bar-p"></span>미전달</div>
+            <div class="legend-item"><span class="legend-box bar-c"></span>취소</div>
+          </div>
+        </div>
+        <div class="report-card">
+          <h3>📋 디자이너 × 상태 매트릭스 <span class="extra">디자이너명 클릭 시 이동</span></h3>
+          <table class="matrix">
+            <thead>
+              <tr>
+                <th style="width:80px;">디자이너</th>
+                <th class="head-y">진행중</th><th class="head-t">오늘</th><th class="head-d">완료</th>
+                <th class="head-p">미전달</th><th class="head-c">취소</th><th>합계</th>
+              </tr>
+            </thead>
+            <tbody id="reportMatrixBody"></tbody>
+            <tfoot id="reportMatrixFoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <div class="row-2col">
+        <div class="report-card">
+          <h3>🥧 오늘 들어온 키워드 분포 <span class="extra">디자이너 today + CS today 기준</span></h3>
+          <div class="donut-wrap">
+            <svg class="donut" id="kwDonut" viewBox="0 0 100 100"></svg>
+            <div class="donut-legend" id="kwLegend"></div>
+          </div>
+        </div>
+        <div class="report-card">
+          <h3>💬 CS 주문상품 (오늘) <span class="extra" id="reportCsCount">0건</span></h3>
+          <table class="report-list">
+            <thead><tr><th style="width:120px;">날짜</th><th>주문자</th><th>품목</th></tr></thead>
+            <tbody id="reportCs"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="row-2col">
+        <div class="report-card">
+          <h3>📥 오늘 들어온 업무 <span class="extra" id="reportTodayCount">0건</span></h3>
+          <table class="report-list">
+            <thead><tr><th style="width:80px;">디자이너</th><th>주문자</th><th>품목</th></tr></thead>
+            <tbody id="reportToday"></tbody>
+          </table>
+        </div>
+        <div class="report-card">
+          <h3>✅ 오늘 완료된 업무 <span class="extra" id="reportDoneCount">0건</span></h3>
+          <table class="report-list">
+            <thead><tr><th style="width:80px;">디자이너</th><th>주문자</th><th>품목</th></tr></thead>
+            <tbody id="reportDone"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-card">
+        <h3>⚠️ 점검 필요 <span class="extra">시안미전달 + 진행중 + 취소 (사유/상태 확인)</span></h3>
+        <table class="report-list">
+          <thead><tr>
+            <th style="width:80px;">상태</th><th style="width:80px;">디자이너</th>
+            <th style="width:100px;">날짜</th><th style="width:140px;">주문자</th>
+            <th>품목</th><th>사유 / 메모</th>
+          </tr></thead>
+          <tbody id="reportCheck"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CS -->
+  <div id="csView" style="display:none;">
+    <div class="summary-bar">
+      <div class="summary-item"><span class="summary-dot" style="background:#a87a7a;"></span> 오늘 주문: <strong id="csCntToday">0</strong></div>
+      <div class="summary-item"><span class="summary-dot" style="background:#7a4d4d;"></span> 어제 주문: <strong id="csCntYday">0</strong></div>
+      <div class="summary-item">총 누적: <strong id="csCntAll">0</strong></div>
+      <div class="summary-item" style="margin-left:auto; color:#8e5e5e; font-weight:600;">⚠ 당일 출고 원칙 — 진행중/완료 구분 없음</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn btn-primary" onclick="exportCSExcel()">📊 CS 엑셀</button>
+        <button class="btn btn-info" onclick="openKeywordModal()">🏷️ 품목 키워드 관리</button>
+        <button class="btn" onclick="window.print()">🖨️ 인쇄</button>
+      </div>
+      <div>
+        <span class="save-status" id="csSaveStatus"></span>
+        <button class="btn btn-danger btn-sm" onclick="clearOldCs()">30일 지난 이력 삭제</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="section section-cs">
+        <div class="section-header">
+          <div class="label-left">
+            <span>💬 오늘 CS 주문</span>
+            <span class="badge" id="csTodayBadge">0건</span>
+            <span style="font-size:12px; opacity:0.85;" id="csTodayDateLabel"></span>
+          </div>
+          <button class="btn btn-sm" style="background:#fff; color:#a87a7a; border-color:#fff;" onclick="addCsRow()">＋ 주문 추가</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+            <th>품목</th><th class="col-memo">메모</th><th style="width:90px; text-align:center;">작업</th>
+          </tr></thead>
+          <tbody id="tbody-cs"></tbody>
+        </table>
+      </div>
+
+      <div class="report-card" style="margin-bottom:16px;">
+        <h3>🥧 오늘 CS 주문 키워드 분포 <span class="extra">CS 오늘 주문 기준</span></h3>
+        <div class="donut-wrap">
+          <svg class="donut" id="csKwDonut" viewBox="0 0 100 100"></svg>
+          <div class="donut-legend" id="csKwLegend"></div>
+        </div>
+      </div>
+
+      <div class="section section-cs-history">
+        <div class="section-header">
+          <div class="label-left"><span>📅 이전 CS 주문 이력</span><span class="badge" id="csHistBadge">0건</span></div>
+          <button class="btn btn-sm" style="background:#fff; color:#7a4d4d; border-color:#fff;" onclick="toggleCsHistory()">
+            <span id="csHistToggleLabel">펼치기 ▼</span>
+          </button>
+        </div>
+        <div id="csHistoryWrap" style="display:none;">
+          <table>
+            <thead><tr>
+              <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+              <th>품목</th><th class="col-memo">메모</th><th style="width:90px; text-align:center;">작업</th>
+            </tr></thead>
+            <tbody id="tbody-cs-history"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 디자이너 -->
+  <div id="designerView" style="display:none;">
+    <div class="designer-banner">
+      <div class="main">
+        <span class="date-tag">📅 <span id="bannerDate"></span></span>
+        <span class="banner-stat">📥 오늘 받은 업무 <span class="number" id="bannerTodayCount">0</span>건</span>
+        <span class="meta" id="bannerSub"></span>
+      </div>
+      <div class="who" id="bannerDesigner"></div>
+    </div>
+    <div class="summary-bar">
+      <div class="summary-item"><span class="summary-dot dot-y"></span> 진행중: <strong id="cntY">0</strong></div>
+      <div class="summary-item"><span class="summary-dot dot-t"></span> 오늘 받은: <strong id="cntT">0</strong></div>
+      <div class="summary-item"><span class="summary-dot dot-d"></span> 오늘 완료: <strong id="cntD">0</strong></div>
+      <div class="summary-item"><span class="summary-dot dot-p"></span> 시안미전달: <strong id="cntP">0</strong></div>
+      <div class="summary-item"><span class="summary-dot dot-c"></span> 취소: <strong id="cntC">0</strong></div>
+      <div class="summary-item" style="margin-left:auto;">총 <strong id="cntAll">0</strong>건</div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <button class="btn btn-primary" onclick="exportExcel()">📊 엑셀 다운로드</button>
+        <button class="btn btn-info" onclick="openKeywordModal()">🏷️ 품목 키워드 관리</button>
+        <button class="btn" onclick="window.print()">🖨️ 인쇄</button>
+        <button class="btn" onclick="exportJSON()">💾 백업</button>
+        <button class="btn" onclick="importJSON()">📂 복원</button>
+        <input type="file" id="importFile" style="display:none" accept=".json">
+      </div>
+      <div>
+        <button class="btn btn-danger btn-sm" onclick="resetCurrent()">현재 디자이너 초기화</button>
+      </div>
+    </div>
+
+    <div class="panel">
+
+      <div class="section section-today">
+        <div class="section-header">
+          <div class="label-left"><span>📥 오늘 받은 업무</span><span class="badge" id="badgeT">0건</span></div>
+          <button class="btn btn-sm" style="background:#fff; color:#6b89a8; border-color:#fff;" onclick="addRow('today')">＋ 행 추가</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+            <th>품목</th><th class="col-memo">메모</th><th class="col-act">작업</th>
+          </tr></thead>
+          <tbody id="tbody-today"></tbody>
+        </table>
+      </div>
+
+      <div class="section section-yesterday">
+        <div class="section-header">
+          <div class="label-left"><span>📋 진행중 업무</span><span class="badge" id="badgeY">0건</span></div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn-sm" style="background:rgba(255,255,255,0.85); color:#b08968; border-color:#fff;" onclick="toggleYestSection()">
+              <span id="yestSectionToggleLabel">접기 ▲</span>
+            </button>
+            <button class="btn btn-sm" style="background:#fff; color:#b08968; border-color:#fff;" onclick="addRow('yesterday')">＋ 행 추가</button>
+          </div>
+        </div>
+
+        <div id="yestSectionWrap">
+        <!-- 진행중 업무: 2개 탭으로 분리 -->
+        <div class="yest-tabs" style="display:flex; background:#f1ece4; border-bottom:1px solid #e0d2c0;">
+          <button type="button" class="yest-tab active" data-yt="today" onclick="switchYestTab('today')"
+                  style="flex:1; padding:10px 14px; border:none; background:#b08968; color:#fff; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit; border-right:1px solid #fff;">
+            📋 오늘 진행중 업무
+            <span id="badgeYtoday" style="display:inline-block; background:rgba(255,255,255,0.25); color:#fff; padding:2px 8px; border-radius:10px; font-size:11px; margin-left:4px; font-weight:700;">0건</span>
+          </button>
+          <button type="button" class="yest-tab" data-yt="all" onclick="switchYestTab('all')"
+                  style="flex:1; padding:10px 14px; border:none; background:#e8dccc; color:#8c6347; cursor:pointer; font-size:13px; font-weight:600; font-family:inherit;">
+            📋 전체 진행중 업무
+            <span id="badgeYprev" style="display:inline-block; background:rgba(140,99,71,0.18); color:#8c6347; padding:2px 8px; border-radius:10px; font-size:11px; margin-left:4px; font-weight:700;">0건</span>
+          </button>
+        </div>
+
+        <!-- 탭 패널 1: 오늘 진행중 -->
+        <div id="yest-pane-today">
+          <table>
+            <thead><tr>
+              <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+              <th>품목</th><th class="col-memo">메모</th><th class="col-act">작업</th>
+            </tr></thead>
+            <tbody id="tbody-yesterday"></tbody>
+          </table>
+        </div>
+
+        <!-- 탭 패널 2: 전체 진행중 (어제까지 누적 + 오늘) -->
+        <div id="yest-pane-all" style="display:none;">
+          <table>
+            <thead><tr>
+              <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+              <th>품목</th><th class="col-memo">메모</th><th class="col-act">작업</th>
+            </tr></thead>
+            <tbody id="tbody-yesterday-prev"></tbody>
+          </table>
+        </div>
+        </div><!-- /yestSectionWrap -->
+      </div>
+
+      <div class="section section-pending">
+        <div class="section-header">
+          <div class="label-left"><span>⏸️ 시안 미전달</span><span class="badge" id="badgeP">0건</span></div>
+          <button class="btn btn-sm" style="background:#fff; color:#9c8eb0; border-color:#fff;" onclick="addRow('pending')">＋ 행 추가</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+            <th>품목</th><th class="col-memo">사유 / 대기 사유</th><th class="col-act">작업</th>
+          </tr></thead>
+          <tbody id="tbody-pending"></tbody>
+        </table>
+      </div>
+
+      <div class="section section-done">
+        <div class="section-header">
+          <div class="label-left">
+            <span>✅ 진행 완료된 업무 (오늘)</span>
+            <span class="badge" id="badgeD">0건</span>
+            <span style="font-size:12px; opacity:0.85;" id="doneTodayDateLabel"></span>
+          </div>
+          <button class="btn btn-sm" style="background:#fff; color:#7a9b7e; border-color:#fff;" onclick="addRow('done')">＋ 행 추가</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+            <th>품목</th><th class="col-memo">메모</th><th class="col-act">작업</th>
+          </tr></thead>
+          <tbody id="tbody-done"></tbody>
+        </table>
+      </div>
+
+      <div class="section section-cancel">
+        <div class="section-header">
+          <div class="label-left"><span>🚫 취소</span><span class="badge" id="badgeC">0건</span></div>
+          <button class="btn btn-sm" style="background:#fff; color:#94a3b8; border-color:#fff;" onclick="addRow('cancel')">＋ 행 추가</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+            <th>품목</th><th class="col-memo">취소 사유</th><th class="col-act">작업</th>
+          </tr></thead>
+          <tbody id="tbody-cancel"></tbody>
+        </table>
+      </div>
+
+      <div class="section section-done-history">
+        <div class="section-header">
+          <div class="label-left">
+            <span>📁 이전 완료 이력</span>
+            <span class="badge" id="badgeDoneHist">0건</span>
+            <span style="font-size:12px; opacity:0.85;">— 다음날이 되면 자동으로 이쪽으로 이월</span>
+          </div>
+          <button class="btn btn-sm" style="background:#fff; color:#3f5d44; border-color:#fff;" onclick="toggleDoneHistory()">
+            <span id="doneHistToggleLabel">펼치기 ▼</span>
+          </button>
+        </div>
+        <div id="doneHistoryWrap" style="display:none;">
+          <table>
+            <thead><tr>
+              <th class="col-no">No</th><th class="col-date">날짜</th><th class="col-name">주문자명</th>
+              <th>품목</th><th class="col-memo">메모</th><th style="width:90px; text-align:center;">작업</th>
+            </tr></thead>
+            <tbody id="tbody-done-history"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer-info">
+    하나사인몰 디자인팀 · 자동저장(브라우저 로컬) · 다른 PC 이동 시 백업/복원 사용
+  </div>
+</div>
+
+<datalist id="itemKeywords"></datalist>
+
+<div class="modal-backdrop" id="keywordModal" style="display:none;" onclick="closeKeywordModalIfBackdrop(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <h3>🏷️ 품목 키워드 관리</h3>
+      <button class="modal-close" onclick="closeKeywordModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="kw-add-row">
+        <input type="text" id="kwInput" placeholder="새 키워드 입력 후 Enter 또는 추가" maxlength="40">
+        <button class="btn btn-primary" onclick="addKeyword()">＋ 추가</button>
+      </div>
+      <input type="text" class="kw-search" id="kwSearch" placeholder="🔍 키워드 검색" oninput="renderKeywordList()">
+      <div class="kw-section-title">사용자 추가 키워드 (<span id="kwUserCount">0</span>)</div>
+      <div class="kw-list" id="kwUserList"></div>
+      <div class="kw-section-title">기본 키워드 (<span id="kwPresetCount">0</span>) <span style="font-weight:400; text-transform:none;">— 삭제 가능</span></div>
+      <div class="kw-list" id="kwPresetList"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" onclick="resetKeywords()" style="color:#a85555;">기본값 복원</button>
+      <button class="btn btn-primary" onclick="closeKeywordModal()">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="worklog-data.js" onerror="window.__nasDataMissing=true;console.log('[worklog] worklog-data.js 없음 → 로컬 모드')"></script>
+<script>
+const DESIGNERS = ['현주', '예진', '사랑', '혜리', '경민', '민진'];
+const STORAGE_KEY = 'hanasm_design_worklog_v2';
+const KEYWORDS_KEY = 'hanasm_design_keywords_v1';
+const SECTIONS = ['yesterday','today','done','pending','cancel'];
+const SECTION_LABEL = { yesterday:'진행중', today:'오늘 받음', done:'완료', pending:'시안미전달', cancel:'취소' };
+const DEFAULT_KEYWORDS = [
+  '게시판','안내판','입간판','명패','실명판',
+  '주차스티커','바닥스티커','벽면스티커',
+  '피난안내도','소방시설안내도',
+  '현수막','배너','X배너','걸이배너',
+  '시트','페트','포맥스','폼보드','DTF',
+  '디자인의뢰','시안수정','재인쇄','로고제작'
+];
+
+let state = { view:'report', data:{}, cs:[], yesterdayCollapsed:{}, yesterdayTodayCollapsed:{}, yesterdayPrevCollapsed:{} };
+let keywords = { user:[], preset:[...DEFAULT_KEYWORDS] };
+
+function init() {
+  load();
+  loadKeywords();
+  setupDate();
+  buildDatalist();
+  renderTabs();
+  renderView();
+  updateDataSrcIndicator();
+  updateUndoButton();
+  loadNasHandle();
+  // 진행중 업무 활성 탭 복원 (기본: 오늘)
+  try {
+    const savedYestTab = localStorage.getItem('yestActiveTab') || 'today';
+    switchYestTab(savedYestTab);
+    // 진행중 섹션 접기 상태 복원 (기본: 펼침)
+    const savedOpen = localStorage.getItem('yestSectionOpen');
+    if (savedOpen === '0') toggleYestSection();
+  } catch(e) {}
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return; // 입력 중이면 기본 undo
+      e.preventDefault();
+      undo();
+    }
+  });
+  document.getElementById('workDate').addEventListener('change', updateDayOfWeek);
+  document.getElementById('importFile').addEventListener('change', handleImport);
+  document.getElementById('kwInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); addKeyword(); }
+  });
+}
+
+/* 날짜 */
+function setupDate() {
+  const t = new Date();
+  document.getElementById('workDate').value = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  updateDayOfWeek();
+}
+function updateDayOfWeek() {
+  const v = document.getElementById('workDate').value;
+  if (!v) return;
+  const days = ['일','월','화','수','목','금','토'];
+  const d = new Date(v);
+  document.getElementById('dayOfWeek').textContent = `(${days[d.getDay()]})`;
+  if (state.view === 'report') renderReport();
+  else if (state.view === 'cs') renderCsView();
+  else if (state.view && state.data[state.view]) {
+    // 작업일자가 바뀌면 진행중 탭(오늘/전체)·완료 모두 재렌더 →
+    // 어제 항목은 자동으로 '오늘 진행중'에서 빠지고 '전체 진행중'에만 남음
+    renderSection('yesterday');
+    renderSection('done');
+    updateCounts();
+  }
+}
+function shiftDate(delta) {
+  const inp = document.getElementById('workDate');
+  const v = inp.value; if (!v) return;
+  const d = new Date(v); d.setDate(d.getDate() + delta);
+  inp.value = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  updateDayOfWeek();
+}
+function goToday() { setupDate(); }
+
+/* 데이터 */
+function load() {
+  let nas = null, savedLocal = null;
+  try {
+    if (window.WORKLOG_DATA) nas = JSON.parse(JSON.stringify(window.WORKLOG_DATA));
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) savedLocal = JSON.parse(saved);
+    else {
+      const old = localStorage.getItem('hanasm_design_worklog_v1');
+      if (old) savedLocal = JSON.parse(old);
+    }
+  } catch (e) { console.error(e); }
+
+  let useNas = false;
+  if (nas && !savedLocal) useNas = true;
+  else if (nas && savedLocal) {
+    const nasT = nas._lastUpdated || '';
+    const locT = savedLocal._lastUpdated || '';
+    if (!locT || nasT > locT) useNas = true;
+  }
+
+  if (useNas) { state = nas; state._dataSrc = 'NAS'; }
+  else if (savedLocal) { state = savedLocal; state._dataSrc = state._dataSrc || '로컬'; }
+  if (!state.data) state.data = {};
+  DESIGNERS.forEach(name => {
+    if (!state.data[name]) state.data[name] = {};
+    SECTIONS.forEach(s => { if (!state.data[name][s]) state.data[name][s] = []; });
+    // 마이그레이션: 기존 done 행에 doneDate 없으면 date 복사
+    state.data[name].done.forEach(r => { if (!r.doneDate) r.doneDate = r.date; });
+  });
+  if (!Array.isArray(state.cs)) state.cs = [];
+  if (!state.yesterdayCollapsed || typeof state.yesterdayCollapsed !== 'object') state.yesterdayCollapsed = {};
+  if (!state.yesterdayTodayCollapsed || typeof state.yesterdayTodayCollapsed !== 'object') state.yesterdayTodayCollapsed = {};
+  if (!state.yesterdayPrevCollapsed || typeof state.yesterdayPrevCollapsed !== 'object') state.yesterdayPrevCollapsed = {};
+  if (state.current && !state.view) state.view = state.current;
+  if (!state.view) state.view = 'report';
+}
+function save() {
+  // 직전 상태(localStorage에 있던 것)를 undo 스택에 푸시
+  try {
+    const prev = localStorage.getItem(STORAGE_KEY);
+    if (prev && !__suppressUndo) {
+      undoStack.push(prev);
+      if (undoStack.length > 10) undoStack.shift();
+      updateUndoButton();
+    }
+  } catch(e) {}
+  state._lastUpdated = new Date().toISOString();
+  state._dataSrc = '로컬';
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  updateDataSrcIndicator();
+  flashSave();
+  scheduleNasWrite();
+}
+let saveTimer;
+function flashSave() {
+  const el = document.getElementById('saveStatus');
+  if (!el) return;
+  el.textContent = '✓ 저장됨';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { el.textContent = '자동저장됨'; }, 1500);
+}
+
+/* 키워드 */
+function loadKeywords() {
+  try {
+    const saved = localStorage.getItem(KEYWORDS_KEY);
+    if (saved) {
+      const k = JSON.parse(saved);
+      keywords.user = Array.isArray(k.user) ? k.user : [];
+      keywords.preset = Array.isArray(k.preset) ? k.preset : [...DEFAULT_KEYWORDS];
+    }
+  } catch (e) { console.error(e); }
+}
+function saveKeywords() {
+  localStorage.setItem(KEYWORDS_KEY, JSON.stringify(keywords));
+  buildDatalist();
+}
+function buildDatalist() {
+  const dl = document.getElementById('itemKeywords');
+  const all = [...keywords.user, ...keywords.preset];
+  const unique = [...new Set(all)].sort();
+  dl.innerHTML = unique.map(w => `<option value="${escapeAttr(w)}">`).join('');
+}
+function openKeywordModal() {
+  document.getElementById('keywordModal').style.display = 'flex';
+  document.getElementById('kwSearch').value = '';
+  renderKeywordList();
+  setTimeout(() => document.getElementById('kwInput').focus(), 50);
+}
+function closeKeywordModal() { document.getElementById('keywordModal').style.display = 'none'; }
+function closeKeywordModalIfBackdrop(e) { if (e.target.id === 'keywordModal') closeKeywordModal(); }
+function addKeyword() {
+  const inp = document.getElementById('kwInput');
+  const w = inp.value.trim();
+  if (!w) return;
+  if ([...keywords.user, ...keywords.preset].includes(w)) { alert('이미 등록된 키워드입니다.'); return; }
+  keywords.user.unshift(w);
+  saveKeywords();
+  inp.value = '';
+  renderKeywordList();
+  inp.focus();
+}
+function removeKeyword(word, type) {
+  if (!confirm(`"${word}" 키워드를 삭제하시겠습니까?`)) return;
+  keywords[type] = keywords[type].filter(k => k !== word);
+  saveKeywords();
+  renderKeywordList();
+}
+function resetKeywords() {
+  if (!confirm('기본 키워드를 초기 상태로 복원합니다. (사용자 추가 키워드는 유지)')) return;
+  keywords.preset = [...DEFAULT_KEYWORDS];
+  saveKeywords();
+  renderKeywordList();
+}
+function renderKeywordList() {
+  const search = document.getElementById('kwSearch').value.trim().toLowerCase();
+  const filter = w => !search || w.toLowerCase().includes(search);
+  const userList = document.getElementById('kwUserList');
+  const presetList = document.getElementById('kwPresetList');
+  const userF = keywords.user.filter(filter);
+  const presetF = keywords.preset.filter(filter);
+  document.getElementById('kwUserCount').textContent = keywords.user.length;
+  document.getElementById('kwPresetCount').textContent = keywords.preset.length;
+  userList.innerHTML = userF.length
+    ? userF.map(w => `<span class="kw-tag">${escapeHtml(w)}<button class="x" onclick="removeKeyword('${escapeAttr(w)}','user')">×</button></span>`).join('')
+    : '<div class="kw-empty">사용자 추가 키워드가 없습니다.</div>';
+  presetList.innerHTML = presetF.length
+    ? presetF.map(w => `<span class="kw-tag preset">${escapeHtml(w)}<button class="x" onclick="removeKeyword('${escapeAttr(w)}','preset')">×</button></span>`).join('')
+    : '<div class="kw-empty">조건에 맞는 기본 키워드가 없습니다.</div>';
+}
+
+/* 탭 */
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+
+  const reportBtn = document.createElement('button');
+  reportBtn.className = 'tab report-tab' + (state.view === 'report' ? ' active' : '');
+  const totalActive = DESIGNERS.reduce((s, n) => s + getCounts(n).active, 0);
+  reportBtn.innerHTML = `📊 팀 보고${totalActive > 0 ? ` <span class="count">${totalActive}</span>` : ''}`;
+  reportBtn.onclick = () => { state.view = 'report'; save(); renderTabs(); renderView(); };
+  tabs.appendChild(reportBtn);
+
+  const csBtn = document.createElement('button');
+  csBtn.className = 'tab cs-tab' + (state.view === 'cs' ? ' active' : '');
+  const csTodayCount = getCsTodayCount();
+  csBtn.innerHTML = `💬 CS 주문${csTodayCount > 0 ? ` <span class="count">${csTodayCount}</span>` : ''}`;
+  csBtn.onclick = () => { state.view = 'cs'; save(); renderTabs(); renderView(); };
+  tabs.appendChild(csBtn);
+
+  DESIGNERS.forEach(name => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (name === state.view ? ' active' : '');
+    const c = getCounts(name);
+    btn.innerHTML = `${name} ${c.active > 0 ? `<span class="count">${c.active}</span>` : ''}`;
+    btn.onclick = () => { state.view = name; save(); renderTabs(); renderView(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function renderView() {
+  const reportView = document.getElementById('reportView');
+  const designerView = document.getElementById('designerView');
+  const csView = document.getElementById('csView');
+  reportView.style.display = 'none';
+  designerView.style.display = 'none';
+  csView.style.display = 'none';
+  if (state.view === 'report') {
+    reportView.style.display = '';
+    renderReport();
+  } else if (state.view === 'cs') {
+    csView.style.display = '';
+    renderCsView();
+  } else {
+    designerView.style.display = '';
+    SECTIONS.forEach(s => renderSection(s));
+    updateCounts();
+    applyYesterdayCollapseState();
+  }
+}
+
+function applyYesterdayCollapseState() {
+  // 두 그룹(작업일자에 진행중 / 작업일자 제외 진행중) 각각 토글 상태 적용
+  const todayWrap = document.getElementById('yesterdayTodayWrap');
+  const todayLbl = document.getElementById('yesterdayTodayToggleLabel');
+  if (todayWrap && todayLbl) {
+    const c = !!state.yesterdayTodayCollapsed[state.view];
+    todayWrap.style.display = c ? 'none' : '';
+    todayLbl.textContent = c ? '펼치기 ▼' : '접기 ▲';
+  }
+  const prevWrap = document.getElementById('yesterdayPrevWrap');
+  const prevLbl = document.getElementById('yesterdayPrevToggleLabel');
+  if (prevWrap && prevLbl) {
+    const c = !!state.yesterdayPrevCollapsed[state.view];
+    prevWrap.style.display = c ? 'none' : '';
+    prevLbl.textContent = c ? '펼치기 ▼' : '접기 ▲';
+  }
+}
+
+/* 카운트 */
+function getCounts(name) {
+  const d = state.data[name] || { yesterday:[], today:[], done:[], pending:[], cancel:[] };
+  const y = d.yesterday.length, t = d.today.length, dd = d.done.length, p = d.pending.length, c = d.cancel.length;
+  return { yesterday:y, today:t, done:dd, pending:p, cancel:c, active: y + t + p, total: y + t + dd + p + c };
+}
+function getTotals() {
+  const t = { yesterday:0, today:0, done:0, pending:0, cancel:0, active:0, total:0 };
+  DESIGNERS.forEach(n => {
+    const c = getCounts(n);
+    SECTIONS.forEach(k => t[k] += c[k]);
+    t.active += c.active; t.total += c.total;
+  });
+  return t;
+}
+function getCsToday() {
+  const d = document.getElementById('workDate').value;
+  return state.cs.filter(r => r.date === d);
+}
+function getCsTodayCount() { return getCsToday().length; }
+
+/* 보고 */
+function renderReport() {
+  const v = document.getElementById('workDate').value;
+  const days = ['일','월','화','수','목','금','토'];
+  if (v) {
+    const d = new Date(v);
+    document.getElementById('reportDate').textContent = `(${v} ${days[d.getDay()]})`;
+  }
+  const t = getTotals();
+  const loaded = DESIGNERS.filter(n => getCounts(n).total > 0).length;
+  document.getElementById('reportSubtitle').textContent =
+    `입력 완료: ${loaded}/6명  ·  활성 ${t.active}건  ·  처리 ${t.done + t.cancel}건  ·  미전달 ${t.pending}건`;
+
+  const csCount = getCsTodayCount();
+  const todayDate = v;
+  const doneTodayCount = collectRows('done').filter(r => (r.doneDate || r.date) === todayDate).length;
+
+  // 오늘 받음 세부 (CS + 디자이너 6명)
+  const todayPerDesigner = DESIGNERS.map(n => ({ name:n, count: state.data[n].today.length }));
+  const todayTotalAll = csCount + todayPerDesigner.reduce((s, d) => s + d.count, 0);
+  const todayDetailHTML = `<div class="detail">
+    <span class="pill cs"><strong>CS</strong>${csCount}</span>
+    ${todayPerDesigner.map(d => `<span class="pill"><strong>${d.name}</strong>${d.count}</span>`).join('')}
+  </div>`;
+
+  const items = [
+    { cls:'k-y', label:'진행중',     value:t.yesterday },
+    { cls:'k-t', label:'오늘 받음',  value:todayTotalAll, sub:`디자이너 ${t.today} + CS ${csCount}`, detail:todayDetailHTML, span:2 },
+    { cls:'k-d', label:'오늘 완료',  value:doneTodayCount, sub:`누적 ${t.done}건` },
+    { cls:'k-p', label:'시안미전달', value:t.pending },
+    { cls:'k-c', label:'취소',       value:t.cancel },
+    { cls:'k-all', label:'활성 합계', value:t.active, sub:`전체 ${t.total}건` },
+    { cls:'k-cs', label:'CS 오늘',   value:csCount, sub:`누적 ${state.cs.length}건` }
+  ];
+  document.getElementById('reportKpi').innerHTML = items.map(it => `
+    <div class="kpi ${it.cls}"${it.span ? ` style="grid-column: span ${it.span};"` : ''}>
+      <div class="label">${it.label}</div>
+      <div class="value">${it.value}</div>
+      ${it.sub ? `<div class="sub">${it.sub}</div>` : ''}
+      ${it.detail || ''}
+    </div>
+  `).join('');
+
+  const bars = document.getElementById('reportBars');
+  const sorted = [...DESIGNERS].sort((a, b) => {
+    const ca = getCounts(a), cb = getCounts(b);
+    return cb.active - ca.active || cb.total - ca.total;
+  });
+  const maxTotal = Math.max(1, ...sorted.map(n => getCounts(n).total));
+  bars.innerHTML = sorted.map(name => {
+    const c = getCounts(name);
+    if (c.total === 0) {
+      return `<div class="designer-bar">
+        <div class="db-head"><div class="db-name" onclick="goDesigner('${name}')" style="color:#bbb;">${name}</div><div class="db-stat">-</div></div>
+        <div class="bar-row"><div style="width:100%; background:#f0f0f0;"></div></div>
+      </div>`;
+    }
+    const pct = vv => (vv / maxTotal) * 100;
+    const segs = [
+      { val:c.yesterday, cls:'bar-y', lb:'진행중' },
+      { val:c.today,     cls:'bar-t', lb:'오늘' },
+      { val:c.done,      cls:'bar-d', lb:'완료' },
+      { val:c.pending,   cls:'bar-p', lb:'미전달' },
+      { val:c.cancel,    cls:'bar-c', lb:'취소' }
+    ].filter(s => s.val > 0).map(s =>
+      `<div class="bar-seg ${s.cls}" style="width:${pct(s.val)}%" title="${s.lb}: ${s.val}건">${s.val}</div>`
+    ).join('');
+    return `<div class="designer-bar">
+      <div class="db-head">
+        <div class="db-name" onclick="goDesigner('${name}')">${name} <span class="pill">활성 ${c.active}</span></div>
+        <div class="db-stat">총 ${c.total}건</div>
+      </div>
+      <div class="bar-row">${segs}</div>
+    </div>`;
+  }).join('');
+
+  const mb = document.getElementById('reportMatrixBody');
+  mb.innerHTML = '';
+  DESIGNERS.forEach(name => {
+    const c = getCounts(name);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="designer" onclick="goDesigner('${name}')">${name}</td>
+      <td class="${c.yesterday ? '' : 'zero'}">${c.yesterday || '-'}</td>
+      <td class="${c.today ? '' : 'zero'}">${c.today || '-'}</td>
+      <td class="${c.done ? '' : 'zero'}">${c.done || '-'}</td>
+      <td class="${c.pending ? '' : 'zero'}">${c.pending || '-'}</td>
+      <td class="${c.cancel ? '' : 'zero'}">${c.cancel || '-'}</td>
+      <td class="total">${c.total || '-'}</td>
+    `;
+    mb.appendChild(tr);
+  });
+  document.getElementById('reportMatrixFoot').innerHTML = `<tr>
+    <td class="designer" style="cursor:default; color:#475569;">합계</td>
+    <td>${t.yesterday}</td><td>${t.today}</td><td>${t.done}</td>
+    <td>${t.pending}</td><td>${t.cancel}</td><td>${t.total}</td>
+  </tr>`;
+
+  const todayList = collectRows('today').sort(rowSortByDesigner);
+  const doneList = collectRows('done').filter(r => (r.doneDate || r.date) === todayDate).sort(rowSortByDesigner);
+  fillReportList('reportToday', todayList);
+  fillReportList('reportDone', doneList);
+  document.getElementById('reportTodayCount').textContent = `${todayList.length}건`;
+  document.getElementById('reportDoneCount').textContent = `${doneList.length}건 (오늘 작업일자 기준)`;
+
+  const csTodayList = getCsToday();
+  document.getElementById('reportCsCount').textContent = `${csTodayList.length}건`;
+  fillCsReportList(csTodayList);
+
+  renderKeywordDonut('kwDonut', 'kwLegend', [...todayList, ...csTodayList]);
+
+  const checkList = [...collectRows('pending'), ...collectRows('yesterday'), ...collectRows('cancel')];
+  fillCheckList(checkList);
+}
+
+function collectRows(section) {
+  const rows = [];
+  DESIGNERS.forEach(name => {
+    state.data[name][section].forEach(r => rows.push({ designer: name, status: section, ...r }));
+  });
+  return rows;
+}
+function rowSortByDesigner(a, b) { return DESIGNERS.indexOf(a.designer) - DESIGNERS.indexOf(b.designer); }
+function fillReportList(id, rows) {
+  const tbody = document.getElementById(id);
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#bbb; padding:14px;">해당 항목이 없습니다.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="designer-tag">${r.designer}</span></td>
+      <td>${escapeHtml(r.name) || '<span style="color:#bbb;">미입력</span>'}</td>
+      <td>${escapeHtml(r.item) || '<span style="color:#bbb;">미입력</span>'}</td>
+    </tr>
+  `).join('');
+}
+function fillCsReportList(rows) {
+  const tbody = document.getElementById('reportCs');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#bbb; padding:14px;">오늘 CS 주문이 없습니다.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="color:#8e5e5e; font-size:12px;">${escapeHtml(r.date)}</td>
+      <td>${escapeHtml(r.name) || '<span style="color:#bbb;">미입력</span>'}</td>
+      <td>${escapeHtml(r.item) || '<span style="color:#bbb;">미입력</span>'}</td>
+    </tr>
+  `).join('');
+}
+function fillCheckList(rows) {
+  const tbody = document.getElementById('reportCheck');
+  if (rows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#bbb; padding:14px;">점검 필요 항목이 없습니다.</td></tr>';
+    return;
+  }
+  const order = { pending:0, yesterday:1, cancel:2 };
+  rows.sort((a, b) => (order[a.status] - order[b.status]) || (a.date || '').localeCompare(b.date || ''));
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="stat-tag stat-${r.status}">${SECTION_LABEL[r.status]}</span></td>
+      <td><span class="designer-tag">${r.designer}</span></td>
+      <td>${escapeHtml(r.date)}</td>
+      <td>${escapeHtml(r.name) || '-'}</td>
+      <td>${escapeHtml(r.item) || '-'}</td>
+      <td style="color:#57606a;">${escapeHtml(r.memo) || '<span style="color:#bbb;">-</span>'}</td>
+    </tr>
+  `).join('');
+}
+function goDesigner(name) {
+  state.view = name;
+  save();
+  renderTabs();
+  renderView();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* CS */
+function getCsHistory() {
+  const d = document.getElementById('workDate').value;
+  return state.cs.filter(r => r.date !== d);
+}
+function renderCsView() {
+  const today = document.getElementById('workDate').value;
+  const days = ['일','월','화','수','목','금','토'];
+  const dObj = new Date(today);
+  document.getElementById('csTodayDateLabel').textContent = `(${today} ${days[dObj.getDay()]})`;
+  const todayList = getCsToday();
+  const history = getCsHistory();
+  const yObj = new Date(today); yObj.setDate(yObj.getDate() - 1);
+  const yStr = `${yObj.getFullYear()}-${String(yObj.getMonth()+1).padStart(2,'0')}-${String(yObj.getDate()).padStart(2,'0')}`;
+  const yCount = state.cs.filter(r => r.date === yStr).length;
+  document.getElementById('csCntToday').textContent = todayList.length;
+  document.getElementById('csCntYday').textContent = yCount;
+  document.getElementById('csCntAll').textContent = state.cs.length;
+  document.getElementById('csTodayBadge').textContent = todayList.length + '건';
+  document.getElementById('csHistBadge').textContent = history.length + '건';
+  renderCsTodayTable(todayList);
+  renderCsHistoryTable(history);
+  renderKeywordDonut('csKwDonut', 'csKwLegend', todayList);
+}
+function renderCsTodayTable(rows) {
+  const tbody = document.getElementById('tbody-cs');
+  tbody.innerHTML = '';
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">＋ 주문 추가 버튼으로 오늘 들어온 CS 주문을 입력하세요</td></tr>`;
+    return;
+  }
+  rows.forEach((row, displayIdx) => {
+    const realIdx = state.cs.indexOf(row);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-no">${displayIdx + 1}</td>
+      <td class="col-date"><input type="date" data-cs-idx="${realIdx}" data-field="date" value="${row.date || ''}"></td>
+      <td class="col-name"><input type="text" data-cs-idx="${realIdx}" data-field="name" value="${escapeAttr(row.name || '')}" placeholder="주문자명"></td>
+      <td><input type="text" list="itemKeywords" data-cs-idx="${realIdx}" data-field="item" value="${escapeAttr(row.item || '')}" placeholder="품목 (입력 시 키워드 추천)"></td>
+      <td class="col-memo"><input type="text" data-cs-idx="${realIdx}" data-field="memo" value="${escapeAttr(row.memo || '')}" placeholder="메모 (수량, 사이즈 등)"></td>
+      <td style="text-align:center;">
+        <button class="icon-btn delete" title="삭제" onclick="deleteCsRow(${realIdx})">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', handleCsInput);
+    input.addEventListener('change', handleCsInput);
+    input.addEventListener('keydown', handleCsKeyNav);
+  });
+}
+function renderCsHistoryTable(rows) {
+  const tbody = document.getElementById('tbody-cs-history');
+  tbody.innerHTML = '';
+  if (rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">이전 이력이 없습니다.</td></tr>`;
+    return;
+  }
+  const sorted = [...rows].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  sorted.forEach((row, displayIdx) => {
+    const realIdx = state.cs.indexOf(row);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-no">${displayIdx + 1}</td>
+      <td class="col-date"><input type="date" data-cs-idx="${realIdx}" data-field="date" value="${row.date || ''}"></td>
+      <td class="col-name"><input type="text" data-cs-idx="${realIdx}" data-field="name" value="${escapeAttr(row.name || '')}"></td>
+      <td><input type="text" list="itemKeywords" data-cs-idx="${realIdx}" data-field="item" value="${escapeAttr(row.item || '')}"></td>
+      <td class="col-memo"><input type="text" data-cs-idx="${realIdx}" data-field="memo" value="${escapeAttr(row.memo || '')}"></td>
+      <td style="text-align:center;">
+        <button class="icon-btn delete" title="삭제" onclick="deleteCsRow(${realIdx})">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', handleCsInput);
+    input.addEventListener('change', handleCsInput);
+  });
+}
+function handleCsInput(e) {
+  const realIdx = parseInt(e.target.dataset.csIdx);
+  const field = e.target.dataset.field;
+  state.cs[realIdx][field] = e.target.value;
+  csFlashSave();
+  save();
+  if (field === 'date') renderCsView();
+}
+function handleCsKeyNav(e) {
+  const input = e.target;
+  if (input.tagName !== 'INPUT') return;
+  const FIELDS = ['date','name','item','memo'];
+  const field = input.dataset.field;
+  const fIdx = FIELDS.indexOf(field);
+  if (fIdx === -1) return;
+  const tr = input.closest('tr');
+  if (!tr) return;
+  const findInRow = (row, f) => row.querySelector(`input[data-field="${f}"]`);
+  const rowIdx = Array.from(tr.parentElement.children).indexOf(tr);
+  const sibling = (delta) => tr.parentElement.children[rowIdx + delta];
+  let target = null, prevent = false;
+  if (e.key === 'ArrowRight') {
+    const atEnd = input.type !== 'text' || input.selectionStart === input.value.length;
+    if (atEnd && fIdx < FIELDS.length - 1) { target = findInRow(tr, FIELDS[fIdx + 1]); prevent = true; }
+  } else if (e.key === 'ArrowLeft') {
+    const atStart = input.type !== 'text' || input.selectionStart === 0;
+    if (atStart && fIdx > 0) { target = findInRow(tr, FIELDS[fIdx - 1]); prevent = true; }
+  } else if (e.key === 'ArrowDown') {
+    const next = sibling(1); if (next) { target = findInRow(next, field); prevent = true; }
+  } else if (e.key === 'ArrowUp') {
+    const prev = sibling(-1); if (prev) { target = findInRow(prev, field); prevent = true; }
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (fIdx < FIELDS.length - 1) target = findInRow(tr, FIELDS[fIdx + 1]);
+    else { const next = sibling(1); if (next) target = findInRow(next, 'name'); else { addCsRow(); return; } }
+  }
+  if (target) {
+    if (prevent) e.preventDefault();
+    target.focus();
+    if (target.type === 'text') { const len = target.value.length; target.setSelectionRange(len, len); }
+  }
+}
+function addCsRow() {
+  const today = document.getElementById('workDate').value || new Date().toISOString().slice(0,10);
+  state.cs.push({ date: today, name:'', item:'', memo:'' });
+  save();
+  renderCsView();
+  renderTabs();
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#tbody-cs input[data-field="name"]');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+function deleteCsRow(realIdx) {
+  const row = state.cs[realIdx]; if (!row) return;
+  if (!confirm(`삭제하시겠습니까?\n${row.name || row.item || ''}`)) return;
+  state.cs.splice(realIdx, 1);
+  save();
+  renderCsView();
+  renderTabs();
+}
+function clearOldCs() {
+  const today = document.getElementById('workDate').value || new Date().toISOString().slice(0,10);
+  const cutoff = new Date(today); cutoff.setDate(cutoff.getDate() - 30);
+  const before = state.cs.length;
+  state.cs = state.cs.filter(r => !r.date || new Date(r.date) >= cutoff);
+  alert(`${before - state.cs.length}건 삭제되었습니다.`);
+  save();
+  renderCsView();
+  renderTabs();
+}
+function toggleCsHistory() {
+  const wrap = document.getElementById('csHistoryWrap');
+  const lbl = document.getElementById('csHistToggleLabel');
+  if (wrap.style.display === 'none') { wrap.style.display = ''; lbl.textContent = '접기 ▲'; }
+  else { wrap.style.display = 'none'; lbl.textContent = '펼치기 ▼'; }
+}
+function csFlashSave() {
+  const el = document.getElementById('csSaveStatus');
+  if (!el) return;
+  el.textContent = '✓ 저장됨';
+  setTimeout(() => { el.textContent = ''; }, 1500);
+}
+function exportCSExcel() {
+  const date = document.getElementById('workDate').value;
+  let csv = '﻿';
+  csv += `하나사인몰 CS 주문상품 (${date} 기준)\n\n날짜,주문자명,품목,메모\n`;
+  const sorted = [...state.cs].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  sorted.forEach(r => { csv += `${csvCell(r.date)},${csvCell(r.name)},${csvCell(r.item)},${csvCell(r.memo)}\n`; });
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `CS_주문상품_${date}.csv`;
+  link.click();
+}
+
+/* 키워드 분류 / 도넛 */
+function classifyKeyword(item) {
+  if (!item) return '미입력';
+  const all = [...keywords.user, ...keywords.preset];
+  let best = null;
+  for (const kw of all) {
+    if (item.includes(kw)) { if (!best || kw.length > best.length) best = kw; }
+  }
+  return best || '기타';
+}
+const KW_PALETTE = ['#6b89a8','#b08968','#7a9b7e','#9c8eb0','#b87060','#7a9b95','#c2956b','#5d7d77','#5b7896','#8a779e','#9c5e54','#9c6b3f','#94a3b8','#64748b','#475569'];
+function aggregateKeywords(rows) {
+  const map = {};
+  rows.forEach(r => { const k = classifyKeyword(r.item); map[k] = (map[k] || 0) + 1; });
+  return Object.entries(map).sort((a, b) => b[1] - a[1]).map(([k, v]) => ({ key:k, val:v }));
+}
+function renderKeywordDonut(svgId, legendId, rows) {
+  const svg = document.getElementById(svgId);
+  const legend = document.getElementById(legendId);
+  const data = aggregateKeywords(rows);
+  const total = data.reduce((s, d) => s + d.val, 0);
+  if (total === 0) {
+    svg.innerHTML = `<circle cx="50" cy="50" r="40" fill="none" stroke="#eee" stroke-width="14"/>
+      <text x="50" y="55" text-anchor="middle" font-size="9" fill="#aaa">데이터 없음</text>`;
+    legend.innerHTML = '<div class="donut-empty">집계할 항목이 없습니다.</div>';
+    return;
+  }
+  const r = 40, cx = 50, cy = 50;
+  const C = 2 * Math.PI * r;
+  let offset = 0;
+  const segs = data.map((d, i) => {
+    const frac = d.val / total;
+    const len = frac * C;
+    const color = KW_PALETTE[i % KW_PALETTE.length];
+    d._color = color;
+    const seg = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+      stroke="${color}" stroke-width="14"
+      stroke-dasharray="${len.toFixed(2)} ${(C - len).toFixed(2)}"
+      stroke-dashoffset="${(-offset).toFixed(2)}"
+      transform="rotate(-90 ${cx} ${cy})"/>`;
+    offset += len;
+    return seg;
+  }).join('');
+  svg.innerHTML = `
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f5f5f5" stroke-width="14"/>
+    ${segs}
+    <text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">${total}</text>
+    <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="6" fill="#8b949e">건</text>
+  `;
+  legend.innerHTML = data.map(d => {
+    const pct = ((d.val / total) * 100).toFixed(1);
+    return `<div class="li">
+      <div class="li-left"><span class="lb" style="background:${d._color}"></span>${escapeHtml(d.key)}</div>
+      <div><strong>${d.val}</strong> <span style="color:#8b949e; font-size:11px;">(${pct}%)</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* 디자이너 화면 배너 / 카운트 */
+function updateBanner() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  const wd = document.getElementById('workDate').value;
+  if (!wd) return;
+  const days = ['일','월','화','수','목','금','토'];
+  const dObj = new Date(wd);
+  const d = state.data[state.view];
+  // 작업일자에 받은 총 건수 = 모든 섹션에서 date === workDate 인 행 합산 (이동되어도 고정)
+  let receivedTotal = 0;
+  SECTIONS.forEach(s => {
+    receivedTotal += d[s].filter(r => r.date === wd).length;
+  });
+  document.getElementById('bannerDate').textContent = `${wd} (${days[dObj.getDay()]})`;
+  document.getElementById('bannerTodayCount').textContent = receivedTotal;
+  document.getElementById('bannerDesigner').textContent = state.view + ' 디자이너';
+  document.getElementById('bannerSub').textContent = receivedTotal > 0 ? '(작업 이동되어도 고정)' : '';
+}
+function updateCounts() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  updateBanner();
+  const c = getCounts(state.view);
+  const wd = document.getElementById('workDate').value;
+  const doneToday = state.data[state.view].done.filter(r => (r.doneDate || r.date) === wd).length;
+  document.getElementById('cntY').textContent = c.yesterday;
+  document.getElementById('cntT').textContent = c.today;
+  document.getElementById('cntD').textContent = doneToday;
+  document.getElementById('cntP').textContent = c.pending;
+  document.getElementById('cntC').textContent = c.cancel;
+  document.getElementById('cntAll').textContent = c.yesterday + c.today + doneToday + c.pending + c.cancel;
+  document.getElementById('badgeY').textContent = c.yesterday + '건';
+  document.getElementById('badgeT').textContent = c.today + '건';
+  document.getElementById('badgeD').textContent = doneToday + '건';
+  document.getElementById('badgeP').textContent = c.pending + '건';
+  document.getElementById('badgeC').textContent = c.cancel + '건';
+}
+
+/* 디자이너 행 렌더 */
+function renderSection(section) {
+  const tbody = document.getElementById(`tbody-${section}`);
+  if (!tbody) return;
+  const allRows = state.data[state.view][section];
+  const wd = document.getElementById('workDate').value;
+  let displayRows;
+  if (section === 'done') {
+    displayRows = allRows.filter(r => (r.doneDate || r.date) === wd);
+    const lbl = document.getElementById('doneTodayDateLabel');
+    if (lbl) lbl.textContent = wd ? `(${wd} 완료 기준)` : '';
+  } else if (section === 'yesterday') {
+    // 진행중 업무를 두 그룹으로 분리 렌더 (당일 / 그 이전 전체)
+    renderYesterdaySplit(allRows, wd);
+    return;
+  } else {
+    displayRows = allRows;
+  }
+  tbody.innerHTML = '';
+  if (displayRows.length === 0) {
+    const msg = section === 'done'
+      ? '오늘 작업일자에 완료된 업무가 없습니다.'
+      : '＋ 행 추가 버튼을 눌러 업무를 입력하세요';
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${msg}</td></tr>`;
+  } else {
+    displayRows.forEach((row, displayIdx) => {
+      const originalIdx = allRows.indexOf(row);
+      const tr = document.createElement('tr');
+      const memoPlaceholder = section === 'pending' ? '대기 사유' : (section === 'cancel' ? '취소 사유' : '메모');
+      tr.innerHTML = `
+        <td class="col-no">${displayIdx + 1}</td>
+        <td class="col-date"><input type="date" data-section="${section}" data-idx="${originalIdx}" data-field="date" value="${row.date || ''}"></td>
+        <td class="col-name"><input type="text" data-section="${section}" data-idx="${originalIdx}" data-field="name" value="${escapeAttr(row.name || '')}" placeholder="주문자명"></td>
+        <td><input type="text" list="itemKeywords" data-section="${section}" data-idx="${originalIdx}" data-field="item" value="${escapeAttr(row.item || '')}" placeholder="품목 (입력 시 키워드 추천)"></td>
+        <td class="col-memo"><input type="text" data-section="${section}" data-idx="${originalIdx}" data-field="memo" value="${escapeAttr(row.memo || '')}" placeholder="${memoPlaceholder}"></td>
+        <td class="col-act">
+          <div class="move-btns">
+            ${getMoveButtons(section, originalIdx)}
+            <button class="icon-btn delete" title="삭제" onclick="deleteRow('${section}', ${originalIdx})">✕</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('input').forEach(input => {
+      input.addEventListener('input', handleInput);
+      input.addEventListener('change', handleInput);
+      input.addEventListener('keydown', handleKeyNav);
+    });
+  }
+  if (section === 'done') renderDoneHistory();
+}
+
+/* 진행중 업무: 오늘 진행중 / 전체 진행중 두 탭으로 분리 렌더 */
+function renderYesterdaySplit(allRows, wd) {
+  // 오늘 탭 = 작업일자(wd) 와 동일한 날짜의 진행중
+  const todayRows = allRows.filter(r => (r.date || '') === wd);
+  // 전체 탭 = 모든 진행중 (어제까지 누적 + 오늘) — 다음날로 작업일자가 바뀌면 어제 항목은 여기에만 남음
+  const allSorted = allRows.slice().sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  fillYesterdayTbody('tbody-yesterday', todayRows, allRows, '오늘 진행중 업무가 없습니다. ＋행 추가 버튼을 눌러 입력하세요');
+  fillYesterdayTbody('tbody-yesterday-prev', allSorted, allRows, '진행중 업무가 없습니다.');
+  const badgeToday = document.getElementById('badgeYtoday');
+  if (badgeToday) badgeToday.textContent = todayRows.length + '건';
+  const badgePrev = document.getElementById('badgeYprev');
+  if (badgePrev) badgePrev.textContent = allSorted.length + '건';
+}
+
+/* 진행중 업무 섹션 전체 접기/펼치기 */
+function toggleYestSection() {
+  const wrap = document.getElementById('yestSectionWrap');
+  const lbl = document.getElementById('yestSectionToggleLabel');
+  if (!wrap || !lbl) return;
+  const isHidden = wrap.style.display === 'none';
+  if (isHidden) {
+    wrap.style.display = '';
+    lbl.textContent = '접기 ▲';
+  } else {
+    wrap.style.display = 'none';
+    lbl.textContent = '펼치기 ▼';
+  }
+  try { localStorage.setItem('yestSectionOpen', isHidden ? '1' : '0'); } catch(e) {}
+}
+
+/* 진행중 업무 탭 전환 */
+function switchYestTab(tabName) {
+  const tabs = document.querySelectorAll('.yest-tab');
+  tabs.forEach(t => {
+    const isActive = t.dataset.yt === tabName;
+    t.classList.toggle('active', isActive);
+    const badge = t.querySelector('span');
+    if (isActive) {
+      t.style.background = '#b08968';
+      t.style.color = '#fff';
+      if (badge) {
+        badge.style.background = 'rgba(255,255,255,0.25)';
+        badge.style.color = '#fff';
+      }
+    } else {
+      t.style.background = '#e8dccc';
+      t.style.color = '#8c6347';
+      if (badge) {
+        badge.style.background = 'rgba(140,99,71,0.18)';
+        badge.style.color = '#8c6347';
+      }
+    }
+  });
+  const todayPane = document.getElementById('yest-pane-today');
+  const allPane = document.getElementById('yest-pane-all');
+  if (todayPane) todayPane.style.display = tabName === 'today' ? '' : 'none';
+  if (allPane) allPane.style.display = tabName === 'all' ? '' : 'none';
+  try { localStorage.setItem('yestActiveTab', tabName); } catch(e) {}
+}
+function fillYesterdayTbody(tbodyId, displayRows, allRows, emptyMsg) {
+  const tbody = document.getElementById(tbodyId);
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (displayRows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${emptyMsg}</td></tr>`;
+    return;
+  }
+  displayRows.forEach((row, displayIdx) => {
+    const originalIdx = allRows.indexOf(row);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-no">${displayIdx + 1}</td>
+      <td class="col-date"><input type="date" data-section="yesterday" data-idx="${originalIdx}" data-field="date" value="${row.date || ''}"></td>
+      <td class="col-name"><input type="text" data-section="yesterday" data-idx="${originalIdx}" data-field="name" value="${escapeAttr(row.name || '')}" placeholder="주문자명"></td>
+      <td><input type="text" list="itemKeywords" data-section="yesterday" data-idx="${originalIdx}" data-field="item" value="${escapeAttr(row.item || '')}" placeholder="품목 (입력 시 키워드 추천)"></td>
+      <td class="col-memo"><input type="text" data-section="yesterday" data-idx="${originalIdx}" data-field="memo" value="${escapeAttr(row.memo || '')}" placeholder="메모"></td>
+      <td class="col-act">
+        <div class="move-btns">
+          ${getMoveButtons('yesterday', originalIdx)}
+          <button class="icon-btn move-back" title="오늘 받은 업무로 복귀" onclick="moveRow('yesterday','today', ${originalIdx})">↺복귀</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', handleInput);
+    input.addEventListener('change', handleInput);
+    input.addEventListener('keydown', handleKeyNav);
+  });
+}
+
+function renderDoneHistory() {
+  const tbody = document.getElementById('tbody-done-history');
+  if (!tbody) return;
+  const allRows = state.data[state.view].done;
+  const wd = document.getElementById('workDate').value;
+  const histRows = allRows.filter(r => (r.doneDate || r.date) !== wd);
+  histRows.sort((a, b) => ((b.doneDate || b.date) || '').localeCompare((a.doneDate || a.date) || ''));
+  document.getElementById('badgeDoneHist').textContent = histRows.length + '건';
+  if (histRows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">이전 완료 이력이 없습니다.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = '';
+  histRows.forEach((row, displayIdx) => {
+    const originalIdx = allRows.indexOf(row);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="col-no">${displayIdx + 1}</td>
+      <td class="col-date"><input type="date" data-section="done" data-idx="${originalIdx}" data-field="date" value="${row.date || ''}"></td>
+      <td class="col-name"><input type="text" data-section="done" data-idx="${originalIdx}" data-field="name" value="${escapeAttr(row.name || '')}"></td>
+      <td><input type="text" list="itemKeywords" data-section="done" data-idx="${originalIdx}" data-field="item" value="${escapeAttr(row.item || '')}"></td>
+      <td class="col-memo"><input type="text" data-section="done" data-idx="${originalIdx}" data-field="memo" value="${escapeAttr(row.memo || '')}"></td>
+      <td style="text-align:center;">
+        <button class="icon-btn delete" title="삭제" onclick="deleteRow('done', ${originalIdx})">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', handleInput);
+    input.addEventListener('change', handleInput);
+    input.addEventListener('keydown', handleKeyNav);
+  });
+}
+function toggleDoneHistory() {
+  const wrap = document.getElementById('doneHistoryWrap');
+  const lbl = document.getElementById('doneHistToggleLabel');
+  if (wrap.style.display === 'none') { wrap.style.display = ''; lbl.textContent = '접기 ▲'; }
+  else { wrap.style.display = 'none'; lbl.textContent = '펼치기 ▼'; }
+}
+
+function toggleYesterdayToday() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  state.yesterdayTodayCollapsed[state.view] = !state.yesterdayTodayCollapsed[state.view];
+  save();
+  applyYesterdayCollapseState();
+}
+function toggleYesterdayPrev() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  state.yesterdayPrevCollapsed[state.view] = !state.yesterdayPrevCollapsed[state.view];
+  save();
+  applyYesterdayCollapseState();
+}
+
+function getMoveButtons(section, idx) {
+  const btn = (target, label, cls) =>
+    `<button class="icon-btn ${cls}" title="${SECTION_LABEL[target]}로 이동" onclick="moveRow('${section}','${target}',${idx})">${label}</button>`;
+  if (section === 'today') {
+    return `<select class="status-select" onchange="handleTodayStatus(this, ${idx})">
+      <option value="">▼ 작업결과 선택</option>
+      <option value="done">✓ 완료</option>
+      <option value="yesterday">↻ 진행중</option>
+      <option value="pending">⏸ 시안미전달</option>
+      <option value="cancel">🚫 취소</option>
+    </select>`;
+  }
+  if (section === 'yesterday') return btn('done','✓완료','move-next') + btn('pending','미전달','move-pending') + btn('cancel','취소','move-cancel');
+  if (section === 'done')      return btn('today','↺복귀','move-back');
+  if (section === 'pending')   return btn('yesterday','진행중','move-back') + btn('done','✓완료','move-next') + btn('cancel','취소','move-cancel');
+  if (section === 'cancel')    return btn('today','↻복원','move-back');
+  return '';
+}
+function handleTodayStatus(sel, idx) {
+  const target = sel.value;
+  if (!target) return;
+  const row = state.data[state.view].today[idx];
+  if (!row.item || row.item.trim() === '') {
+    if (!confirm('품목이 비어있습니다. 그래도 이동하시겠습니까?')) { sel.value = ''; return; }
+  }
+  moveRow('today', target, idx);
+}
+
+function escapeAttr(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escapeHtml(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function handleInput(e) {
+  const { section, idx, field } = e.target.dataset;
+  state.data[state.view][section][parseInt(idx)][field] = e.target.value;
+  save();
+  if ((section === 'done' || section === 'yesterday') && field === 'date' && e.type === 'change') {
+    renderSection(section);
+    updateCounts();
+  }
+  if ((section === 'today' || section === 'done') && field === 'date') updateBanner();
+}
+function handleKeyNav(e) {
+  const input = e.target;
+  if (input.tagName !== 'INPUT') return;
+  const { section, idx, field } = input.dataset;
+  if (!section || idx === undefined || !field) return;
+  const FIELDS = ['date','name','item','memo'];
+  const fIdx = FIELDS.indexOf(field);
+  if (fIdx === -1) return;
+  const rIdx = parseInt(idx);
+  const find = (s, i, f) => document.querySelector(`#tbody-${s} input[data-idx="${i}"][data-field="${f}"], #tbody-done-history input[data-idx="${i}"][data-field="${f}"]`);
+  let target = null, prevent = false;
+  if (e.key === 'ArrowRight') {
+    const atEnd = input.type !== 'text' || input.selectionStart === input.value.length;
+    if (atEnd && fIdx < FIELDS.length - 1) { target = find(section, rIdx, FIELDS[fIdx + 1]); prevent = true; }
+  } else if (e.key === 'ArrowLeft') {
+    const atStart = input.type !== 'text' || input.selectionStart === 0;
+    if (atStart && fIdx > 0) { target = find(section, rIdx, FIELDS[fIdx - 1]); prevent = true; }
+  } else if (e.key === 'ArrowDown') {
+    target = find(section, rIdx + 1, field); if (target) prevent = true;
+  } else if (e.key === 'ArrowUp') {
+    target = find(section, rIdx - 1, field); if (target) prevent = true;
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (fIdx < FIELDS.length - 1) target = find(section, rIdx, FIELDS[fIdx + 1]);
+    else { target = find(section, rIdx + 1, 'name'); if (!target) { addRow(section); return; } }
+  }
+  if (target) {
+    if (prevent) e.preventDefault();
+    target.focus();
+    if (target.type === 'text') { const len = target.value.length; target.setSelectionRange(len, len); }
+  }
+}
+function ensureYesterdayOpen() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  // 행 추가/이동 시 진행중 섹션이 접혀 있으면 자동으로 펼침
+  const wrap = document.getElementById('yestSectionWrap');
+  if (wrap && wrap.style.display === 'none') {
+    toggleYestSection();
+  }
+}
+
+function addRow(section) {
+  const today = document.getElementById('workDate').value || new Date().toISOString().slice(0,10);
+  state.data[state.view][section].push({ date: today, name:'', item:'', memo:'' });
+  save();
+  renderSection(section);
+  updateCounts();
+  renderTabs();
+  if (section === 'yesterday') ensureYesterdayOpen();
+  setTimeout(() => {
+    const tbody = document.getElementById(`tbody-${section}`);
+    const inputs = tbody.querySelectorAll(`input[data-field="name"]`);
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+function deleteRow(section, idx) {
+  const row = state.data[state.view][section][idx];
+  if (!row) return;
+  if (!confirm(`삭제하시겠습니까?\n${row.name || row.item || ''}`)) return;
+  state.data[state.view][section].splice(idx, 1);
+  save();
+  renderSection(section);
+  updateCounts();
+  renderTabs();
+}
+function moveRow(from, to, idx) {
+  const row = state.data[state.view][from].splice(idx, 1)[0];
+  // 완료로 이동 시 받은 날짜는 유지하고 완료 일자만 별도 기록 → 진행 완료된 업무(오늘)에 표시
+  if (to === 'done') {
+    const wd = document.getElementById('workDate').value;
+    if (wd) row.doneDate = wd;
+  }
+  // done에서 다른 섹션으로 복귀 시 완료 일자 제거
+  if (from === 'done' && to !== 'done') {
+    delete row.doneDate;
+  }
+  state.data[state.view][to].push(row);
+  save();
+  renderSection(from);
+  renderSection(to);
+  updateCounts();
+  renderTabs();
+  if (to === 'yesterday') ensureYesterdayOpen();
+}
+function resetCurrent() {
+  if (state.view === 'report' || state.view === 'cs') return;
+  if (!confirm(`[${state.view}] 디자이너의 모든 업무를 초기화하시겠습니까?\n(되돌릴 수 없습니다)`)) return;
+  state.data[state.view] = { yesterday:[], today:[], done:[], pending:[], cancel:[] };
+  save();
+  renderView();
+  renderTabs();
+}
+
+/* 엑셀 / 백업 */
+function csvCell(v) {
+  if (v == null) return '';
+  const s = String(v).replace(/"/g, '""');
+  if (s.includes(',') || s.includes('\n') || s.includes('"')) return `"${s}"`;
+  return s;
+}
+function exportExcel() {
+  const date = document.getElementById('workDate').value;
+  let csv = '﻿';
+  csv += `하나사인몰 디자인팀 업무일지 (${date})\n\n`;
+  csv += `[ 팀 전체 현황 ]\n디자이너,진행중,오늘,완료,시안미전달,취소,합계\n`;
+  DESIGNERS.forEach(name => {
+    const c = getCounts(name);
+    csv += `${name},${c.yesterday},${c.today},${c.done},${c.pending},${c.cancel},${c.total}\n`;
+  });
+  const t = getTotals();
+  csv += `합계,${t.yesterday},${t.today},${t.done},${t.pending},${t.cancel},${t.total}\n\n`;
+  DESIGNERS.forEach(name => {
+    const d = state.data[name];
+    const total = SECTIONS.reduce((s, k) => s + d[k].length, 0);
+    if (total === 0) return;
+    csv += `■ ${name}\n구분,날짜,주문자명,품목,메모/사유\n`;
+    SECTIONS.forEach(s => {
+      d[s].forEach(row => { csv += `${SECTION_LABEL[s]},${csvCell(row.date)},${csvCell(row.name)},${csvCell(row.item)},${csvCell(row.memo)}\n`; });
+    });
+    csv += '\n';
+  });
+  if (state.cs.length > 0) {
+    csv += `■ CS 주문상품 (당일 출고)\n날짜,주문자명,품목,메모\n`;
+    const sortedCs = [...state.cs].sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    sortedCs.forEach(r => { csv += `${csvCell(r.date)},${csvCell(r.name)},${csvCell(r.item)},${csvCell(r.memo)}\n`; });
+  }
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `디자인팀_업무일지_${date}.csv`;
+  link.click();
+}
+function exportJSON() {
+  const payload = { ...state, _keywords: keywords };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  const date = document.getElementById('workDate').value;
+  link.download = `디자인팀_업무일지_백업_${date}.json`;
+  link.click();
+}
+function importJSON() { document.getElementById('importFile').click(); }
+function handleImport(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const data = JSON.parse(evt.target.result);
+      if (!confirm('현재 데이터를 덮어씁니다. 계속하시겠습니까?')) return;
+      const kwBackup = data._keywords;
+      delete data._keywords;
+      state = data;
+      DESIGNERS.forEach(name => {
+        if (!state.data[name]) state.data[name] = {};
+        SECTIONS.forEach(s => { if (!state.data[name][s]) state.data[name][s] = []; });
+      });
+      if (!Array.isArray(state.cs)) state.cs = [];
+      if (!state.view) state.view = 'report';
+      if (kwBackup && kwBackup.user && kwBackup.preset) { keywords = kwBackup; saveKeywords(); }
+      save();
+      renderTabs();
+      renderView();
+      alert('복원되었습니다.');
+    } catch (err) { alert('파일을 읽을 수 없습니다: ' + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ===== NAS 공용 데이터 동기화 + Undo ===== */
+let undoStack = [];
+let __suppressUndo = false;
+let nasFolderHandle = null;
+let __nasWriteTimer = null;
+
+function todayStr() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function updateDataSrcIndicator() {
+  const el = document.getElementById('dataSrcIndicator');
+  if (!el) return;
+  const src = state._dataSrc || (window.WORKLOG_DATA ? 'NAS' : '로컬');
+  const t = state._lastUpdated ? state._lastUpdated.replace('T',' ').slice(0,16) : '-';
+  const nasOn = nasFolderHandle ? ' · 자동저장 ON' : '';
+  if (src === 'NAS') {
+    el.style.background = '#d4edda'; el.style.color = '#155724';
+    el.textContent = '🌐 NAS 공용 (' + t + ')' + nasOn;
+  } else {
+    el.style.background = '#fff3cd'; el.style.color = '#856404';
+    el.textContent = '💾 로컬 (' + t + ')' + nasOn;
+  }
+}
+
+function updateUndoButton() {
+  const c = document.getElementById('undoCount');
+  if (c) c.textContent = undoStack.length ? '(' + undoStack.length + ')' : '';
+}
+
+function undo() {
+  if (undoStack.length === 0) { alert('더 이상 되돌릴 작업이 없습니다.'); return; }
+  const prev = undoStack.pop();
+  __suppressUndo = true;
+  try {
+    state = JSON.parse(prev);
+    localStorage.setItem(STORAGE_KEY, prev);
+    renderTabs(); renderView();
+    updateDataSrcIndicator(); updateUndoButton();
+    flashSave();
+    scheduleNasWrite();
+  } catch(e) { console.error(e); }
+  __suppressUndo = false;
+}
+
+function buildNasJsPayload() {
+  const payload = JSON.parse(JSON.stringify(state));
+  payload._lastUpdated = new Date().toISOString();
+  payload._source = 'NAS';
+  payload._keywords = keywords;
+  return payload;
+}
+
+function exportNasData() {
+  const payload = buildNasJsPayload();
+  const js = '// 하나사인몰 디자인팀 업무일지 - 공용 데이터\n'
+           + '// 마지막 갱신: ' + payload._lastUpdated + '\n'
+           + 'window.WORKLOG_DATA = ' + JSON.stringify(payload, null, 2) + ';\n';
+  const blob = new Blob([js], { type:'application/javascript;charset=utf-8' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'worklog-data.js';
+  link.click();
+  alert('worklog-data.js 다운로드 완료.\nNAS 공용 폴더에 덮어쓰면 됩니다.');
+}
+
+function reloadFromNas() {
+  if (!window.WORKLOG_DATA) { alert('worklog-data.js 가 같은 폴더에 없습니다.'); return; }
+  if (!confirm('NAS의 최신 데이터로 다시 불러옵니다.\n현재 로컬 편집 내용이 사라질 수 있습니다.')) return;
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+/* ----- IndexedDB: 폴더 핸들 영구 저장 ----- */
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open('hanasm_worklog', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('kv');
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+async function idbGet(key) {
+  try {
+    const db = await idbOpen();
+    return await new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readonly');
+      const r = tx.objectStore('kv').get(key);
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => resolve(null);
+    });
+  } catch(e) { return null; }
+}
+async function idbSet(key, value) {
+  try {
+    const db = await idbOpen();
+    return await new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').put(value, key);
+      tx.oncomplete = () => resolve();
+    });
+  } catch(e) {}
+}
+async function idbDel(key) {
+  try {
+    const db = await idbOpen();
+    return await new Promise((resolve) => {
+      const tx = db.transaction('kv', 'readwrite');
+      tx.objectStore('kv').delete(key);
+      tx.oncomplete = () => resolve();
+    });
+  } catch(e) {}
+}
+
+/* ----- File System Access API ----- */
+async function connectNasFolder() {
+  if (!window.showDirectoryPicker) {
+    alert('이 브라우저는 폴더 자동저장을 지원하지 않습니다.\nChrome 또는 Edge 최신 버전에서 열어주세요.');
+    return;
+  }
+  try {
+    const handle = await window.showDirectoryPicker({ mode:'readwrite' });
+    nasFolderHandle = handle;
+    await idbSet('nasFolder', handle);
+    document.getElementById('btnNasConnect').textContent = '🔗 NAS: ' + handle.name;
+    updateDataSrcIndicator();
+    await writeNasFiles();
+    alert('NAS 폴더 [' + handle.name + '] 에 자동 저장이 활성화되었습니다.\n앞으로 입력하시면 자동으로\n  ・ worklog-data.js (공용 데이터)\n  ・ 백업/디자인팀_업무일지_' + todayStr() + '.json (당일 백업)\n파일이 갱신됩니다.');
+  } catch(e) {
+    if (e && e.name !== 'AbortError') console.error(e);
+  }
+}
+
+async function loadNasHandle() {
+  if (!window.showDirectoryPicker) {
+    const btn = document.getElementById('btnNasConnect');
+    if (btn) { btn.disabled = true; btn.title = 'Chrome/Edge에서만 동작'; btn.textContent = '🔗 NAS (미지원 브라우저)'; }
+    return;
+  }
+  const handle = await idbGet('nasFolder');
+  if (!handle) return;
+  try {
+    const perm = await handle.queryPermission({ mode:'readwrite' });
+    if (perm === 'granted') {
+      nasFolderHandle = handle;
+      document.getElementById('btnNasConnect').textContent = '🔗 NAS: ' + handle.name;
+      updateDataSrcIndicator();
+    } else {
+      // 페이지 새로고침 후 권한이 풀린 경우 - 사용자가 다시 클릭해야 함
+      const btn = document.getElementById('btnNasConnect');
+      if (btn) btn.textContent = '🔗 NAS 재연결 (' + handle.name + ')';
+      btn.onclick = async () => {
+        const r = await handle.requestPermission({ mode:'readwrite' });
+        if (r === 'granted') { nasFolderHandle = handle; btn.textContent = '🔗 NAS: ' + handle.name; updateDataSrcIndicator(); writeNasFiles(); }
+      };
+    }
+  } catch(e) { console.warn(e); }
+}
+
+function scheduleNasWrite() {
+  if (!nasFolderHandle) return;
+  clearTimeout(__nasWriteTimer);
+  __nasWriteTimer = setTimeout(writeNasFiles, 600); // 디바운스
+}
+
+async function writeNasFiles() {
+  if (!nasFolderHandle) return;
+  try {
+    const payload = buildNasJsPayload();
+    // 1) worklog-data.js (HTML 자동 로드용)
+    const js = '// 하나사인몰 디자인팀 업무일지 - 공용 데이터\n'
+             + '// 마지막 갱신: ' + payload._lastUpdated + '\n'
+             + 'window.WORKLOG_DATA = ' + JSON.stringify(payload, null, 2) + ';\n';
+    const masterFh = await nasFolderHandle.getFileHandle('worklog-data.js', { create: true });
+    const w1 = await masterFh.createWritable();
+    await w1.write(js); await w1.close();
+
+    // 2) 백업/디자인팀_업무일지_YYYY-MM-DD.json (당일 날짜 백업)
+    const backupDir = await nasFolderHandle.getDirectoryHandle('백업', { create: true });
+    const bName = '디자인팀_업무일지_' + todayStr() + '.json';
+    const backupFh = await backupDir.getFileHandle(bName, { create: true });
+    const w2 = await backupFh.createWritable();
+    await w2.write(JSON.stringify(payload, null, 2)); await w2.close();
+
+    const ind = document.getElementById('saveStatus');
+    if (ind) { ind.textContent = '✓ NAS 자동저장됨'; setTimeout(()=>ind.textContent='자동저장됨', 1500); }
+  } catch(e) {
+    console.warn('NAS write failed', e);
+    const ind = document.getElementById('saveStatus');
+    if (ind) ind.textContent = '⚠ NAS 저장실패: ' + (e.message||e.name);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
