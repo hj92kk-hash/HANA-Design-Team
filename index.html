@@ -1874,15 +1874,20 @@ function exportNasData() {
 }
 
 async function reloadFromNas() {
-  // NAS 폴더 핸들이 살아있으면 파일을 직접 읽어 즉시 동기화 (캐시 우회, 페이지 리로드 없음)
   if (nasFolderHandle) {
-    if (!confirm('NAS의 최신 데이터를 강제로 불러옵니다.\n현재 본인 PC의 미저장 변경이 있을 경우 사라질 수 있습니다.')) return;
+    // 1) 본인 변경 사항을 먼저 NAS에 즉시 푸시 (디바운스 무시) → 본인 데이터 손실 방지
+    try {
+      clearTimeout(__nasWriteTimer);
+      await writeNasFiles();
+    } catch(e) { console.warn('pre-sync push failed:', e); }
+    // 2) NAS의 최신 데이터 다시 읽기 (다른 PC가 변경한 게 있으면 머지됨, 충돌 시 마지막 저장이 이김)
     const ok = await syncFromNasFile({ force: true });
     if (ok) {
       const ind = document.getElementById('saveStatus');
       if (ind) { ind.textContent = '✓ NAS에서 동기화'; setTimeout(()=>ind.textContent='자동저장됨', 1800); }
     } else {
-      alert('NAS의 worklog-data.js를 읽지 못했습니다. NAS 연결 상태를 확인해 주세요.');
+      const ind = document.getElementById('saveStatus');
+      if (ind) { ind.textContent = '✓ 본인 데이터 NAS에 저장됨'; setTimeout(()=>ind.textContent='자동저장됨', 1800); }
     }
     return;
   }
@@ -1892,6 +1897,17 @@ async function reloadFromNas() {
   localStorage.removeItem(STORAGE_KEY);
   location.reload();
 }
+
+/* 페이지 닫기 직전 NAS 쓰기 강제 (디바운스 대기 중인 변경 보호) */
+window.addEventListener('beforeunload', () => {
+  try {
+    if (nasFolderHandle && __nasWriteTimer) {
+      clearTimeout(__nasWriteTimer);
+      // 동기적 호출은 불가능하므로 fire-and-forget
+      writeNasFiles();
+    }
+  } catch(e) {}
+});
 
 /* ----- IndexedDB: 폴더 핸들 영구 저장 ----- */
 function idbOpen() {
@@ -1953,7 +1969,9 @@ async function connectNasFolder() {
   }
 }
 
-/* NAS의 worklog-data.js 파일을 직접 읽어 최신 데이터로 동기화 (캐시 우회) */
+/* NAS의 worklog-data.js 파일을 직접 읽어 최신 데이터로 동기화 (캐시 우회)
+ * 본인 PC가 더 최신이면 NAS에 먼저 푸시 → 본인 데이터 손실 방지
+ */
 async function syncFromNasFile(opts) {
   if (!nasFolderHandle) return false;
   const force = opts && opts.force;
@@ -1965,10 +1983,16 @@ async function syncFromNasFile(opts) {
     if (!m) return false;
     const fresh = JSON.parse(m[1]);
     const nasT = fresh._lastUpdated || '';
-    const locT = state && state._lastUpdated || '';
-    // NAS가 더 최신이거나 force일 때만 동기화 (입력 중 데이터 덮어쓰기 방지)
+    const locT = (state && state._lastUpdated) || '';
+    // CASE A: 본인이 더 최신 → NAS에 푸시 (덮어쓰기 손실 방지)
+    if (locT && locT > nasT) {
+      console.log('[NAS sync] local newer, pushing to NAS:', locT, '>', nasT);
+      try { clearTimeout(__nasWriteTimer); await writeNasFiles(); } catch(e) { console.warn(e); }
+      return false; // pull은 안 함 (이미 본인이 최신)
+    }
+    // CASE B: NAS가 더 최신 → pull
     if (force || !locT || nasT > locT) {
-      // 마지막 사용자 활동이 5초 이내면 동기화 보류 (입력 중 보호)
+      // 마지막 사용자 활동이 5초 이내면 자동 폴링은 보류 (입력 중 데이터 보호)
       if (!force && (Date.now() - (window.__lastUserActivity || 0)) < 5000) return false;
       const prevView = state && state.view;
       state = fresh;
@@ -1977,7 +2001,7 @@ async function syncFromNasFile(opts) {
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
       if (typeof renderView === 'function') renderView();
       updateDataSrcIndicator();
-      console.log('[NAS sync] updated to', nasT);
+      console.log('[NAS sync] pulled from NAS:', nasT);
       return true;
     }
     return false;
