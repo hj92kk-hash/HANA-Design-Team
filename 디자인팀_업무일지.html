@@ -253,13 +253,16 @@
 
   <header>
     <h1>하나사인몰 디자인팀 업무일지</h1>
-    <div class="date-box">
-      <span>📅 작업일자:</span>
-      <button class="date-nav" onclick="shiftDate(-1)" title="이전날">◀</button>
-      <input type="date" id="workDate">
-      <button class="date-nav" onclick="shiftDate(1)" title="다음날">▶</button>
-      <button class="date-nav today-btn" onclick="goToday()" title="오늘로">오늘</button>
-      <span id="dayOfWeek"></span>
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+      <span id="liveClock" style="background:rgba(255,255,255,0.15); padding:4px 10px; border-radius:6px; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums;">🕒 현재 --:--:-- KST</span>
+      <div class="date-box">
+        <span>📅 작업일자:</span>
+        <button class="date-nav" onclick="shiftDate(-1)" title="이전날">◀</button>
+        <input type="date" id="workDate">
+        <button class="date-nav" onclick="shiftDate(1)" title="다음날">▶</button>
+        <button class="date-nav today-btn" onclick="goToday()" title="오늘로">오늘</button>
+        <span id="dayOfWeek"></span>
+      </div>
     </div>
   </header>
 
@@ -1825,11 +1828,32 @@ function updateDataSrcIndicator() {
   const nasOn = nasFolderHandle ? ' · 자동저장 ON' : '';
   if (src === 'NAS') {
     el.style.background = '#d4edda'; el.style.color = '#155724';
-    el.textContent = '🌐 NAS 공용 (' + t + ' KST)' + nasOn;
+    el.textContent = '🌐 NAS 공용 · 마지막 저장 ' + t + ' KST' + nasOn;
   } else {
     el.style.background = '#fff3cd'; el.style.color = '#856404';
-    el.textContent = '💾 로컬 (' + t + ' KST)' + nasOn;
+    el.textContent = '💾 로컬 · 마지막 저장 ' + t + ' KST' + nasOn;
   }
+}
+
+/* 실시간 KST 시계 (1초마다 갱신) */
+function nowKSTStr() {
+  const d = new Date();
+  const kst = new Date(d.getTime() + (d.getTimezoneOffset() + 9 * 60) * 60 * 1000);
+  const y = kst.getFullYear();
+  const m = String(kst.getMonth() + 1).padStart(2, '0');
+  const day = String(kst.getDate()).padStart(2, '0');
+  const h = String(kst.getHours()).padStart(2, '0');
+  const mi = String(kst.getMinutes()).padStart(2, '0');
+  const s = String(kst.getSeconds()).padStart(2, '0');
+  return y + '-' + m + '-' + day + ' ' + h + ':' + mi + ':' + s;
+}
+function tickLiveClock() {
+  const el = document.getElementById('liveClock');
+  if (el) el.textContent = '🕒 현재 ' + nowKSTStr() + ' KST';
+}
+if (!window.__liveClockTimer) {
+  tickLiveClock();
+  window.__liveClockTimer = setInterval(tickLiveClock, 1000);
 }
 
 function updateUndoButton() {
