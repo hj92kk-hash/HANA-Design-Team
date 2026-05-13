@@ -1992,4 +1992,70 @@ document.addEventListener('keydown', () => { window.__lastUserActivity = Date.no
 async function loadNasHandle() {
   if (!window.showDirectoryPicker) {
     const btn = document.getElementById('btnNasConnect');
-    if (btn) { btn.disabled = true; btn.title = 'Chrome/Edge에서만 동작'; btn.text
+    if (btn) { btn.disabled = true; btn.title = 'Chrome/Edge에서만 동작'; btn.textContent = '🔗 NAS (미지원 브라우저)'; }
+    return;
+  }
+  const handle = await idbGet('nasFolder');
+  if (!handle) return;
+  try {
+    const perm = await handle.queryPermission({ mode:'readwrite' });
+    if (perm === 'granted') {
+      nasFolderHandle = handle;
+      document.getElementById('btnNasConnect').textContent = '🔗 NAS: ' + handle.name;
+      updateDataSrcIndicator();
+      // 페이지 로드 시 NAS 파일에서 최신 데이터 강제 동기화 (캐시 우회)
+      try { await syncFromNasFile({ force: true }); } catch(e) { console.warn(e); }
+      // 30초마다 자동 폴링 → 다른 PC가 입력한 결과를 자동 반영
+      if (!window.__nasPollTimer) {
+        window.__nasPollTimer = setInterval(function(){ syncFromNasFile(); }, 30000);
+      }
+    } else {
+      // 페이지 새로고침 후 권한이 풀린 경우 - 사용자가 다시 클릭해야 함
+      const btn = document.getElementById('btnNasConnect');
+      if (btn) btn.textContent = '🔗 NAS 재연결 (' + handle.name + ')';
+      btn.onclick = async () => {
+        const r = await handle.requestPermission({ mode:'readwrite' });
+        if (r === 'granted') { nasFolderHandle = handle; btn.textContent = '🔗 NAS: ' + handle.name; updateDataSrcIndicator(); writeNasFiles(); }
+      };
+    }
+  } catch(e) { console.warn(e); }
+}
+
+function scheduleNasWrite() {
+  if (!nasFolderHandle) return;
+  clearTimeout(__nasWriteTimer);
+  __nasWriteTimer = setTimeout(writeNasFiles, 600); // 디바운스
+}
+
+async function writeNasFiles() {
+  if (!nasFolderHandle) return;
+  try {
+    const payload = buildNasJsPayload();
+    // 1) worklog-data.js (HTML 자동 로드용)
+    const js = '// 하나사인몰 디자인팀 업무일지 - 공용 데이터\n'
+             + '// 마지막 갱신: ' + payload._lastUpdated + '\n'
+             + 'window.WORKLOG_DATA = ' + JSON.stringify(payload, null, 2) + ';\n';
+    const masterFh = await nasFolderHandle.getFileHandle('worklog-data.js', { create: true });
+    const w1 = await masterFh.createWritable();
+    await w1.write(js); await w1.close();
+
+    // 2) 백업/디자인팀_업무일지_YYYY-MM-DD.json (당일 날짜 백업)
+    const backupDir = await nasFolderHandle.getDirectoryHandle('백업', { create: true });
+    const bName = '디자인팀_업무일지_' + todayStr() + '.json';
+    const backupFh = await backupDir.getFileHandle(bName, { create: true });
+    const w2 = await backupFh.createWritable();
+    await w2.write(JSON.stringify(payload, null, 2)); await w2.close();
+
+    const ind = document.getElementById('saveStatus');
+    if (ind) { ind.textContent = '✓ NAS 자동저장됨'; setTimeout(()=>ind.textContent='자동저장됨', 1500); }
+  } catch(e) {
+    console.warn('NAS write failed', e);
+    const ind = document.getElementById('saveStatus');
+    if (ind) ind.textContent = '⚠ NAS 저장실패: ' + (e.message||e.name);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
