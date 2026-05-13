@@ -634,24 +634,9 @@
 </div>
 
 <script>
-// worklog-data.js를 캐시 우회로 동기 로드 (timestamp 쿼리)
-// GitHub Pages CDN + 브라우저 캐시 둘 다 우회하여 항상 최신 데이터 받음
-(function(){
-  try {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', 'worklog-data.js?t=' + Date.now(), false); // 동기 로드
-    xhr.send();
-    if (xhr.status === 200 || xhr.status === 0) {
-      // window.WORKLOG_DATA = {...} 형태의 스크립트 평가
-      (new Function(xhr.responseText))();
-    } else {
-      window.__nasDataMissing = true;
-    }
-  } catch(e) {
-    window.__nasDataMissing = true;
-    console.log('[worklog] worklog-data.js 로드 실패 → 로컬 모드', e);
-  }
-})();
+// worklog-data.js 동기 로드 + 캐시 우회 (timestamp 쿼리)
+// document.write로 인라인 처리되므로 file:// 와 https:// 둘 다에서 동작
+document.write('<script src="worklog-data.js?t=' + Date.now() + '" onerror="window.__nasDataMissing=true;console.log(\'[worklog] worklog-data.js 없음 → 로컬 모드\')"><\/script>');
 </script>
 <script>
 const DESIGNERS = ['현주', '예진', '사랑', '혜리', '경민', '민진'];
