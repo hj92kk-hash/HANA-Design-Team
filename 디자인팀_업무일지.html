@@ -697,11 +697,11 @@ function updateDayOfWeek() {
   const days = ['일','월','화','수','목','금','토'];
   const d = new Date(v);
   document.getElementById('dayOfWeek').textContent = `(${days[d.getDay()]})`;
+  // 작업일자에 따라 탭 카운트도 갱신
+  renderTabs();
   if (state.view === 'report') renderReport();
   else if (state.view === 'cs') renderCsView();
   else if (state.view && state.data[state.view]) {
-    // 작업일자가 바뀌면 진행중 탭(오늘/전체)·완료 모두 재렌더 →
-    // 어제 항목은 자동으로 '오늘 진행중'에서 빠지고 '전체 진행중'에만 남음
     renderSection('yesterday');
     renderSection('done');
     updateCounts();
@@ -867,14 +867,30 @@ function renderTabs() {
   csBtn.onclick = () => { state.view = 'cs'; save(); renderTabs(); renderView(); };
   tabs.appendChild(csBtn);
 
+  // 작업일자에 받은 업무만 카운팅 (date 필드가 작업일자와 일치하는 모든 섹션 항목)
+  const wd = (document.getElementById('workDate') || {}).value || '';
   DESIGNERS.forEach(name => {
     const btn = document.createElement('button');
     btn.className = 'tab' + (name === state.view ? ' active' : '');
-    const c = getCounts(name);
-    btn.innerHTML = `${name} ${c.active > 0 ? `<span class="count">${c.active}</span>` : ''}`;
+    const c = getCountsByWorkDate(name, wd);
+    btn.innerHTML = `${name} ${c > 0 ? `<span class="count">${c}</span>` : ''}`;
     btn.onclick = () => { state.view = name; save(); renderTabs(); renderView(); };
     tabs.appendChild(btn);
   });
+}
+
+/* 작업일자에 받은(date===wd) 업무 건수 - 모든 섹션 합산 */
+function getCountsByWorkDate(name, wd) {
+  if (!wd) return 0;
+  const d = state.data[name];
+  if (!d) return 0;
+  let count = 0;
+  SECTIONS.forEach(k => {
+    (d[k] || []).forEach(r => {
+      if ((r.date || '') === wd) count++;
+    });
+  });
+  return count;
 }
 
 function renderView() {
