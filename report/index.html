@@ -12,6 +12,8 @@
 <meta name="apple-mobile-web-app-title" content="하나매출">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
 <style>
   :root{--bg:#f4f6f8;--card:#fff;--ink:#1a1d21;--sub:#6b7280;--line:#e7eaee;--accent:#0b66c3;--up:#c0392b;--down:#1e7d4f;--chip:#eef3f9;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
@@ -62,7 +64,7 @@
   </div>
 </div>
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
-<footer>하나사인몰 웹팀 · 날짜별 누적 매출 · Firestore</footer>
+<footer>하나사인몰 웹팀 · 날짜별 누적 매출 · v3</footer>
 
 <script>
 const won = n => (n||0).toLocaleString('ko-KR');
@@ -141,6 +143,4 @@ function step(dir){
     const today=new Date().toISOString().slice(0,10);
     let def=null; for(const d of DATES){ if(d<=today) def=d; } if(!def) def=DATES[DATES.length-1];
     const p=document.getElementById('picker');
-    p.min=DATES[0]; p.max=def;
-    p.addEventListener('change',e=>show(e.target.value));
-    document.getElementById('prev').onclick=()=
+    p.min=DATES[0
