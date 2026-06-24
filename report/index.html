@@ -2,8 +2,16 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>하나사인몰 매출 대시보드</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b66c3">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="하나매출">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <style>
   :root{--bg:#f4f6f8;--card:#fff;--ink:#1a1d21;--sub:#6b7280;--line:#e7eaee;--accent:#0b66c3;--up:#c0392b;--down:#1e7d4f;--chip:#eef3f9;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
@@ -159,16 +167,4 @@ fetch('sales-all.json?t='+Date.now()).then(r=>r.json()).then(j=>{
   // default = latest available date that is <= today (avoid future typo dates)
   let def=null;
   for(const d of DATES){ if(d<=today) def=d; }
-  if(!def) def=DATES[DATES.length-1];
-  const p=document.getElementById('picker');
-  p.min=DATES[0]; p.max=def;
-  p.addEventListener('change',e=>render(e.target.value));
-  document.getElementById('prev').onclick=()=>step(-1);
-  document.getElementById('next').onclick=()=>step(1);
-  setDate(def);
-}).catch(e=>{
-  document.getElementById('content').innerHTML='<div class="empty">데이터를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</div>';
-});
-</script>
-</body>
-</html>
+  if(!def) def=DATES[DATE
