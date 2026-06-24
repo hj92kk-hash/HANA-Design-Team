@@ -120,6 +120,16 @@ function catTotTable(obj){
   for(var i=0;i<e.length;i++){ h+='<tr><td>'+e[i][0]+'</td><td>'+e[i][1][0]+'</td><td>'+won(e[i][1][1])+'</td></tr>'; }
   return h+'</tbody></table>';
 }
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function top5Section(arr){
+  if(!arr||!arr.length) return '';
+  var h='<section><h2>\uC624\uB298 \uB9E4\uCD9C TOP 5 <span class="sum">\uAC74\uBCC4 \uC0C1\uD638\u00B7\uD488\uBA85</span></h2><table><tbody>';
+  for(var i=0;i<arr.length;i++){ var t=arr[i];
+    h+='<tr><td><span class="rank">'+(i+1)+'</span><b>'+esc(t[1])+'</b>'
+      +'<div style="color:var(--sub);font-size:11px;font-weight:400;margin:2px 0 0 16px;line-height:1.35">'+esc(t[3])+' \u00B7 '+esc(t[2])+'</div></td>'
+      +'<td style="vertical-align:top;font-weight:700;white-space:nowrap">'+won(t[0])+'\uC6D0</td></tr>'; }
+  return h+'</tbody></table></section>';
+}
 function render(dstr){
   var c=document.getElementById('content'), rec=DB[dstr];
   if(!rec){ c.innerHTML='<div class="empty">선택한 날짜의 매출 데이터가 없습니다.</div>'; return; }
@@ -136,6 +146,7 @@ function render(dstr){
   h+='<div class="hbar"><i class="hq" style="width:'+hqr+'%"></i><i class="op" style="width:'+opr+'%"></i></div>';
   h+='<div class="hleg"><span>● 본사 '+won(rec.hq_total)+' ('+rec.hq_cnt+'건·'+hqr+'%)</span><span>오픈마켓 '+won(rec.op_total)+' ('+rec.op_cnt+'건·'+opr+'%) ●</span></div></div>';
   if(pr) h+='<div class="prevline">전일('+pd.replace(/-/g,'.').replace(/^20/,'')+'): '+won(pr.total)+'원 · '+pr.cnt+'건 → 오늘 '+won(rec.total)+'원 · '+rec.cnt+'건</div>';
+  h+=top5Section(rec.top5);
   // donut
   h+='<section><h2>본사 · 오픈마켓</h2><div class="donutwrap">'+donut(rec.total?rec.hq_total/rec.total:0)
      +'<div class="pillcol"><div class="pill hq"><div class="t">본사(진행자)</div><div class="v">'+won(rec.hq_total)+'</div><div class="c">'+rec.hq_cnt+'건 · 비중 '+hqr+'%</div></div>'
