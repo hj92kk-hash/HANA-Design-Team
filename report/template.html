@@ -3,124 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<title>하나사인몰 매출 대시보드</title>
+<title>하나사인몰 일일 매출 리포트</title>
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0b66c3">
+<meta name="theme-color" content="#1b2a4a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="하나매출">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <meta http-equiv="Cache-Control" content="no-store">
 <style>
-  :root{--bg:#f4f6f8;--card:#fff;--ink:#1a1d21;--sub:#6b7280;--line:#e7eaee;--accent:#0b66c3;--up:#c0392b;--down:#1e7d4f;--chip:#eef3f9;}
+  :root{--bg:#eef1f5;--card:#fff;--ink:#1a1d21;--sub:#6b7280;--line:#e7eaee;--navy:#1b2a4a;--blue:#2f6df0;--teal:#18b39a;--up:#e0413a;--down:#1e7d4f;--chip:#f1f4f8;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
-  html,body{background:var(--bg);color:var(--ink);}
-  body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.5;font-size:15px;padding-bottom:48px;}
-  .topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
-  .title{font-size:16px;font-weight:700;}
-  .title small{display:block;font-weight:400;color:var(--sub);font-size:11.5px;margin-top:2px;}
-  .datebar{display:flex;align-items:center;gap:8px;margin-top:10px;}
-  .datebar button{flex:0 0 auto;width:38px;height:40px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:18px;color:var(--accent);font-weight:700;}
-  .datebar input[type=date]{flex:1;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-size:15px;color:var(--ink);background:#fff;}
-  .wrap{max-width:680px;margin:0 auto;padding:14px;}
-  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
-  .kpi .label{font-size:11px;color:var(--sub);}
-  .kpi .val{font-size:16px;font-weight:700;margin-top:3px;word-break:keep-all;}
-  .kpi .delta{font-size:10.5px;margin-top:3px;}
+  body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;font-size:14px;padding-bottom:48px;}
+  .topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:10px 14px;}
+  .brand{font-size:16px;font-weight:800;}
+  .brand span{font-weight:500;color:var(--sub);font-size:11px;letter-spacing:1px;margin-left:6px;}
+  .synced{font-size:11px;color:var(--sub);margin-top:2px;}
+  .datebar{display:flex;align-items:center;gap:6px;margin-top:8px;}
+  .datebar button{flex:0 0 auto;width:36px;height:38px;border:1px solid var(--line);background:#fff;border-radius:9px;font-size:17px;color:var(--blue);font-weight:700;}
+  .datebar #refresh{background:var(--blue);color:#fff;border:none;}
+  .datebar input[type=date]{flex:1;height:38px;border:1px solid var(--line);border-radius:9px;padding:0 10px;font-size:14px;}
+  .wrap{max-width:720px;margin:0 auto;padding:12px;}
+  .hero{background:var(--navy);color:#fff;border-radius:16px;padding:16px;margin-bottom:12px;}
+  .hero .d{font-size:12px;opacity:.8;}
+  .hero .big{font-size:30px;font-weight:800;letter-spacing:-1px;margin:2px 0;}
+  .hero .meta{font-size:12px;opacity:.85;}
+  .badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .badge{background:rgba(255,255,255,.12);border-radius:10px;padding:8px 10px;font-size:12px;}
+  .badge b{font-size:15px;display:block;margin-top:2px;}
+  .bup{color:#ff8a84;} .bdown{color:#8ff0c8;}
+  .hbar{display:flex;height:8px;border-radius:6px;overflow:hidden;margin-top:12px;background:rgba(255,255,255,.15);}
+  .hbar i{display:block;height:100%;}
+  .hbar .hq{background:#5b8def;} .hbar .op{background:var(--teal);}
+  .hleg{display:flex;justify-content:space-between;font-size:11.5px;margin-top:6px;opacity:.9;}
+  .prevline{text-align:center;color:var(--sub);font-size:11.5px;margin:-2px 0 12px;}
   section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
-  h2{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;}
-  h2 .sum{font-size:12px;color:var(--sub);font-weight:500;}
+  h2{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:baseline;}
+  h2 .sum{font-size:11.5px;color:var(--sub);font-weight:500;}
+  .donutwrap{display:flex;align-items:center;gap:14px;}
+  .pillcol{flex:1;display:flex;flex-direction:column;gap:8px;}
+  .pill{border-radius:12px;padding:10px 12px;color:#fff;}
+  .pill.hq{background:var(--blue);} .pill.op{background:var(--teal);}
+  .pill .t{font-size:11px;opacity:.9;} .pill .v{font-size:17px;font-weight:800;margin-top:2px;} .pill .c{font-size:11px;opacity:.9;}
   table{width:100%;border-collapse:collapse;font-size:13px;}
-  th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);}
+  th,td{padding:6px 6px;text-align:right;border-bottom:1px solid var(--line);}
   th:first-child,td:first-child{text-align:left;}
-  thead th{background:#f1f4f8;color:#333;font-weight:600;font-size:12px;}
+  thead th{color:var(--sub);font-weight:600;font-size:11.5px;}
   tr:last-child td{border-bottom:none;}
-  .split{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-  .pill{background:var(--chip);border-radius:12px;padding:10px;text-align:center;}
-  .pill .t{font-size:11px;color:var(--sub);}
-  .pill .v{font-size:15px;font-weight:700;margin-top:2px;}
-  .pill .c{font-size:11px;color:var(--sub);}
-  .up{color:var(--up);font-weight:600;}
-  .down{color:var(--down);font-weight:600;}
-  .flat{color:var(--sub);}
-  .note{font-size:11.5px;color:var(--sub);margin-top:10px;}
+  .rank{display:inline-block;width:16px;color:var(--sub);}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .barrow{display:flex;align-items:center;gap:8px;margin:5px 0;font-size:12px;}
+  .barrow .nm{width:96px;flex:0 0 auto;text-align:right;color:#333;}
+  .barrow .bo{flex:1;background:#eef1f6;border-radius:5px;height:14px;overflow:hidden;}
+  .barrow .bi{height:100%;background:var(--navy);border-radius:5px;}
+  .barrow .vv{width:64px;flex:0 0 auto;color:var(--sub);font-size:11px;}
+  .wsum{display:flex;gap:10px;margin-bottom:10px;}
+  .wsum .b{flex:1;background:var(--chip);border-radius:12px;padding:10px;text-align:center;}
+  .wsum .b .t{font-size:11px;color:var(--sub);} .wsum .b .v{font-size:17px;font-weight:800;margin-top:2px;}
+  .note{font-size:11px;color:var(--sub);}
   .empty{text-align:center;color:var(--sub);padding:40px 10px;}
-  .rank{display:inline-block;width:18px;color:var(--sub);font-size:12px;}
-  footer{text-align:center;color:var(--sub);font-size:11px;margin:18px 0 4px;}
+  footer{text-align:center;color:var(--sub);font-size:10.5px;margin:16px 0 4px;padding:0 10px;}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <div class="title">하나사인몰 매출 대시보드<small id="sub">불러오는 중…</small><small id="synced"></small></div>
+  <div class="brand">하나사인몰 일일 매출 리포트 <span>HANA SIGNMALL</span></div>
+  <div class="synced" id="synced"></div>
   <div class="datebar">
     <button id="prev" aria-label="이전일">&lsaquo;</button>
     <input type="date" id="picker">
     <button id="next" aria-label="다음일">&rsaquo;</button>
-    <button id="refresh" aria-label="새로고침" style="margin-left:4px;background:var(--accent);color:#fff;border:none;">&#x21bb;</button>
+    <button id="refresh" aria-label="새로고침">&#x21bb;</button>
   </div>
 </div>
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
-<footer>하나사인몰 웹팀 · 날짜별 누적 매출 · v4</footer>
+<footer>업체현황 시트 연동 · 본사(사인몰 진행자)/오픈마켓(채널) 기준 · 미정·금액미확정 건 제외 · 품목 분류는 키워드 추정</footer>
 <script>
 var EMBED = __DATA__;
-var won = function(n){ return (n||0).toLocaleString('ko-KR'); };
 var DB = EMBED.data || {};
 var DATES = Object.keys(DB).sort();
-function pct(c,p){ return p ? (c-p)/p*100 : null; }
-function deltaTag(c,p){
-  var v=pct(c,p); if(v===null) return '<span class="flat">–</span>';
-  var a=v>0?'▲':(v<0?'▼':'■'), cls=v>0?'up':(v<0?'down':'flat');
-  return '<span class="'+cls+'">'+a+Math.abs(v).toFixed(1)+'%</span>';
+var won = function(n){ return (n||0).toLocaleString('ko-KR'); };
+function pctTxt(c,p){ if(!p) return null; return (c-p)/p*100; }
+function badge(label,c,p){
+  var v=pctTxt(c,p);
+  if(v===null) return '<div class="badge">'+label+'<b>–</b></div>';
+  var arr=v>0?'▲':(v<0?'▼':'■'), cls=v>0?'bup':(v<0?'bdown':'');
+  return '<div class="badge">'+label+'<b class="'+cls+'">'+arr+Math.abs(v).toFixed(1)+'%</b></div>';
 }
 function prevDateOf(d){ var p=null; for(var i=0;i<DATES.length;i++){ if(DATES[i]<d) p=DATES[i]; else break; } return p; }
-function rowsTable(obj,head){
+function iso(dt){ return dt.toISOString().slice(0,10); }
+function weekRange(dstr){
+  var dt=new Date(dstr+'T00:00:00'); var day=dt.getDay();
+  var diff=(day===0?-6:1-day); var mon=new Date(dt); mon.setDate(dt.getDate()+diff);
+  var fri=new Date(mon); fri.setDate(mon.getDate()+4); return [iso(mon),iso(fri)];
+}
+function donut(frac){
+  var C=2*Math.PI*54, hq=frac*C;
+  return '<svg width="116" height="116" viewBox="0 0 120 120">'
+    +'<circle cx="60" cy="60" r="54" fill="none" stroke="#18b39a" stroke-width="16"/>'
+    +'<circle cx="60" cy="60" r="54" fill="none" stroke="#2f6df0" stroke-width="16" stroke-dasharray="'+hq+' '+(C-hq)+'" stroke-dashoffset="'+(C*0.25)+'" transform="rotate(-90 60 60)" stroke-linecap="butt"/>'
+    +'<text x="60" y="56" text-anchor="middle" font-size="11" fill="#6b7280">본사비중</text>'
+    +'<text x="60" y="74" text-anchor="middle" font-size="20" font-weight="800" fill="#1b2a4a">'+Math.round(frac*100)+'%</text></svg>';
+}
+function rankList(obj){
   var e=Object.entries(obj).sort(function(a,b){return b[1][0]-a[1][0];});
   if(!e.length) return '<div class="note">데이터 없음</div>';
-  var h='<table><thead><tr><th>'+head+'</th><th>매출</th><th>건수</th></tr></thead><tbody>';
-  for(var i=0;i<e.length;i++){ h+='<tr><td>'+e[i][0]+'</td><td>'+won(e[i][1][0])+'</td><td>'+e[i][1][1]+'</td></tr>'; }
+  var h='<table><tbody>';
+  for(var i=0;i<e.length;i++){ h+='<tr><td><span class="rank">'+(i+1)+'</span>'+e[i][0]+'</td><td>'+won(e[i][1][0])+'</td><td style="color:var(--sub);font-size:11px">'+e[i][1][1]+'건</td></tr>'; }
   return h+'</tbody></table>';
 }
-function getRec(d){ return DB[d]||null; }
+function catTotTable(obj){
+  var e=Object.entries(obj).sort(function(a,b){return b[1][1]-a[1][1];});
+  if(!e.length) return '<div class="note">데이터 없음</div>';
+  var h='<table><thead><tr><th>분류</th><th>품목수</th><th>수량</th></tr></thead><tbody>';
+  for(var i=0;i<e.length;i++){ h+='<tr><td>'+e[i][0]+'</td><td>'+e[i][1][0]+'</td><td>'+won(e[i][1][1])+'</td></tr>'; }
+  return h+'</tbody></table>';
+}
 function render(dstr){
-  var c=document.getElementById('content');
-  var rec=getRec(dstr);
-  document.getElementById('sub').textContent = dstr + (rec ? (' · 총 '+won(rec.total)+'원 / '+rec.cnt+'건') : ' · 매출 데이터 없음');
+  var c=document.getElementById('content'), rec=DB[dstr];
   if(!rec){ c.innerHTML='<div class="empty">선택한 날짜의 매출 데이터가 없습니다.</div>'; return; }
-  var pd=prevDateOf(dstr), pr=pd?getRec(pd):null;
-  var aov=rec.cnt?rec.total/rec.cnt:0, paov=(pr&&pr.cnt)?pr.total/pr.cnt:0;
-  var h='<div class="kpis">';
-  h+='<div class="kpi"><div class="label">총매출</div><div class="val">'+won(rec.total)+'</div><div class="delta">'+deltaTag(rec.total,pr&&pr.total)+'</div></div>';
-  h+='<div class="kpi"><div class="label">총건수</div><div class="val">'+rec.cnt+'건</div><div class="delta">'+deltaTag(rec.cnt,pr&&pr.cnt)+'</div></div>';
-  h+='<div class="kpi"><div class="label">건당단가</div><div class="val">'+won(Math.round(aov))+'</div><div class="delta">'+deltaTag(aov,paov)+'</div></div></div>';
-  h+='<section><h2>본사 vs 오픈마켓</h2><div class="split">';
-  h+='<div class="pill"><div class="t">본사(사인몰)</div><div class="v">'+won(rec.hq_total)+'</div><div class="c">'+rec.hq_cnt+'건 · '+(rec.total?(rec.hq_total/rec.total*100).toFixed(0):0)+'%</div></div>';
-  h+='<div class="pill"><div class="t">오픈마켓</div><div class="v">'+won(rec.op_total)+'</div><div class="c">'+rec.op_cnt+'건 · '+(rec.total?(rec.op_total/rec.total*100).toFixed(0):0)+'%</div></div></div></section>';
-  h+='<section><h2>본사 진행자별 <span class="sum">'+won(rec.hq_total)+' / '+rec.hq_cnt+'건</span></h2>'+rowsTable(rec.hq,'진행자')+'</section>';
-  h+='<section><h2>오픈마켓 채널별 <span class="sum">'+won(rec.op_total)+' / '+rec.op_cnt+'건</span></h2>'+rowsTable(rec.op,'채널')+'</section>';
-  var its=Object.entries(rec.items).sort(function(a,b){return b[1][0]-a[1][0];}).slice(0,10);
-  var it='<table><thead><tr><th>순위 · 품목</th><th>매출</th><th>건수</th></tr></thead><tbody>';
-  for(var i=0;i<its.length;i++){ it+='<tr><td><span class="rank">'+(i+1)+'</span>'+its[i][0]+'</td><td>'+won(its[i][1][0])+'</td><td>'+its[i][1][1]+'</td></tr>'; }
-  it+='</tbody></table>';
-  h+='<section><h2>품목 TOP10 <span class="sum">매출순</span></h2>'+it+'<div class="note">※ 품목 분류는 품명 키워드 기반 추정값입니다.</div></section>';
-  if(pr){
-    var f=function(c,p){ return p?(c/p*100).toFixed(1)+'%':'–'; };
-    h+='<section><h2>전일 대비 <span class="sum">'+pd+'</span></h2><table><thead><tr><th>지표</th><th>당일</th><th>전영업일</th><th>증감</th><th>전날의%</th></tr></thead><tbody>';
-    h+='<tr><td>총매출</td><td>'+won(rec.total)+'</td><td>'+won(pr.total)+'</td><td>'+deltaTag(rec.total,pr.total)+'</td><td>'+f(rec.total,pr.total)+'</td></tr>';
-    h+='<tr><td>총건수</td><td>'+rec.cnt+'</td><td>'+pr.cnt+'</td><td>'+deltaTag(rec.cnt,pr.cnt)+'</td><td>'+f(rec.cnt,pr.cnt)+'</td></tr>';
-    h+='<tr><td>본사</td><td>'+won(rec.hq_total)+'</td><td>'+won(pr.hq_total)+'</td><td>'+deltaTag(rec.hq_total,pr.hq_total)+'</td><td>'+f(rec.hq_total,pr.hq_total)+'</td></tr>';
-    h+='<tr><td>오픈마켓</td><td>'+won(rec.op_total)+'</td><td>'+won(pr.op_total)+'</td><td>'+deltaTag(rec.op_total,pr.op_total)+'</td><td>'+f(rec.op_total,pr.op_total)+'</td></tr>';
-    h+='<tr><td>건당단가</td><td>'+won(Math.round(aov))+'</td><td>'+won(Math.round(paov))+'</td><td>'+deltaTag(aov,paov)+'</td><td>'+f(aov,paov)+'</td></tr>';
-    h+='</tbody></table></section>';
-  }
-  if(rec.excl) h+='<div class="note">제외 건수: '+rec.excl+'건(총금액 "미정"·빈칸 등 정수 아님).</div>';
+  var pd=prevDateOf(dstr), pr=pd?DB[pd]:null;
+  var aov=rec.cnt?Math.round(rec.total/rec.cnt):0;
+  var hqr=rec.total?Math.round(rec.hq_total/rec.total*100):0, opr=100-hqr;
+  var dd=new Date(dstr+'T00:00:00'); var wd=['일','월','화','수','목','금','토'][dd.getDay()];
+  var dlabel=dstr.replace(/-/g,'.').replace(/^20/,'')+' ('+wd+')';
+  var h='';
+  h+='<div class="hero"><div class="d">오늘 총매출 · '+dlabel+'</div><div class="big">'+won(rec.total)+'원</div>';
+  h+='<div class="meta">총 '+rec.cnt+'건 · 건당 '+won(aov)+'원 · 제외 '+rec.excl+'건</div>';
+  h+='<div class="badges">'+badge('전일대비 매출',rec.total,pr&&pr.total)+badge('전일대비 건수',rec.cnt,pr&&pr.cnt)
+     +'<div class="badge">본사<b>'+won(rec.hq_total)+'</b></div><div class="badge">오픈마켓<b>'+won(rec.op_total)+'</b></div></div>';
+  h+='<div class="hbar"><i class="hq" style="width:'+hqr+'%"></i><i class="op" style="width:'+opr+'%"></i></div>';
+  h+='<div class="hleg"><span>● 본사 '+won(rec.hq_total)+' ('+rec.hq_cnt+'건·'+hqr+'%)</span><span>오픈마켓 '+won(rec.op_total)+' ('+rec.op_cnt+'건·'+opr+'%) ●</span></div></div>';
+  if(pr) h+='<div class="prevline">전일('+pd.replace(/-/g,'.').replace(/^20/,'')+'): '+won(pr.total)+'원 · '+pr.cnt+'건 → 오늘 '+won(rec.total)+'원 · '+rec.cnt+'건</div>';
+  // donut
+  h+='<section><h2>본사 · 오픈마켓</h2><div class="donutwrap">'+donut(rec.total?rec.hq_total/rec.total:0)
+     +'<div class="pillcol"><div class="pill hq"><div class="t">본사(진행자)</div><div class="v">'+won(rec.hq_total)+'</div><div class="c">'+rec.hq_cnt+'건 · 비중 '+hqr+'%</div></div>'
+     +'<div class="pill op"><div class="t">오픈마켓(채널)</div><div class="v">'+won(rec.op_total)+'</div><div class="c">'+rec.op_cnt+'건 · 비중 '+opr+'%</div></div></div></div></section>';
+  // ranked lists
+  h+='<section class="cols" style="display:grid"><div><h2>본사 진행자별 <span class="sum">'+rec.hq_cnt+'건</span></h2>'+rankList(rec.hq)+'</div>'
+     +'<div><h2>오픈마켓 채널별 <span class="sum">'+rec.op_cnt+'건</span></h2>'+rankList(rec.op)+'</div></section>';
+  // category TOP bar (by sales)
+  var its=Object.entries(rec.items).sort(function(a,b){return b[1][0]-a[1][0];}).slice(0,8);
+  var mx=its.length?its[0][1][0]:1;
+  var bar='<section><h2>품목 카테고리 TOP <span class="sum">매출순</span></h2>';
+  for(var i=0;i<its.length;i++){ bar+='<div class="barrow"><div class="nm">'+its[i][0]+'</div><div class="bo"><div class="bi" style="width:'+(its[i][1][0]/mx*100)+'%"></div></div><div class="vv">'+won(its[i][1][0])+'</div></div>'; }
+  bar+='</section>'; h+=bar;
+  // category totals split
+  h+='<section><h2>품목 카테고리별 합계 <span class="sum">품목수 · 수량</span></h2><div class="cols">'
+     +'<div><div class="note" style="margin-bottom:6px">본사(내부)</div>'+catTotTable(rec.items_hq)+'</div>'
+     +'<div><div class="note" style="margin-bottom:6px">오픈마켓</div>'+catTotTable(rec.items_op)+'</div></div></section>';
+  // weekly cumulative (Mon-Fri of selected date's week)
+  var wr=weekRange(dstr), wtot=0,wcnt=0,witems={};
+  for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(dk>=wr[0]&&dk<=wr[1]){ var rr=DB[dk]; wtot+=rr.total; wcnt+=rr.cnt;
+    for(var k in rr.items){ if(!witems[k]) witems[k]=[0,0]; witems[k][0]+=rr.items[k][0]; witems[k][1]+=rr.items[k][1]; } } }
+  var we=Object.entries(witems).sort(function(a,b){return b[1][1]-a[1][1];});
+  var wk='<section><h2>이번 주 누적 (월~금) <span class="sum">'+wr[0].slice(5).replace('-','/')+' ~ '+wr[1].slice(5).replace('-','/')+'</span></h2>';
+  wk+='<div class="wsum"><div class="b"><div class="t">주간 누적매출</div><div class="v">'+won(wtot)+'원</div></div><div class="b"><div class="t">주간 누적건수</div><div class="v">'+wcnt+'건</div></div></div>';
+  wk+='<table><thead><tr><th>품목 (많이 팔린 순)</th><th>누적건수</th><th>누적매출</th></tr></thead><tbody>';
+  for(var i=0;i<we.length;i++){ wk+='<tr><td><span class="rank">'+(i+1)+'</span>'+we[i][0]+'</td><td>'+we[i][1][1]+'건</td><td>'+won(we[i][1][0])+'</td></tr>'; }
+  wk+='</tbody></table></section>'; h+=wk;
   c.innerHTML=h;
 }
 function setDate(d){ document.getElementById('picker').value=d; render(d); }
-function step(dir){
-  var cur=document.getElementById('picker').value, t=null, i;
+function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
   if(dir<0){ for(i=0;i<DATES.length;i++){ if(DATES[i]<cur) t=DATES[i]; else break; } }
   else { for(i=0;i<DATES.length;i++){ if(DATES[i]>cur){ t=DATES[i]; break; } } }
   if(t) setDate(t);
@@ -132,17 +178,13 @@ function step(dir){
     var today=new Date().toISOString().slice(0,10);
     var def=null; for(var i=0;i<DATES.length;i++){ if(DATES[i]<=today) def=DATES[i]; }
     if(!def) def=DATES[DATES.length-1];
-    var p=document.getElementById('picker');
-    p.min=DATES[0]; p.max=def;
-    p.addEventListener('change', function(e){ render(e.target.value); });
+    var p=document.getElementById('picker'); p.min=DATES[0]; p.max=def;
+    p.addEventListener('change',function(e){ render(e.target.value); });
     document.getElementById('prev').onclick=function(){ step(-1); };
     document.getElementById('next').onclick=function(){ step(1); };
-    var rb=document.getElementById('refresh'); if(rb) rb.onclick=function(){ location.href=location.pathname+'?t='+Date.now(); };
+    document.getElementById('refresh').onclick=function(){ location.href=location.pathname+'?t='+Date.now(); };
     setDate(def);
-  }catch(err){
-    document.getElementById('sub').textContent='오류';
-    document.getElementById('content').innerHTML='<div class="empty">표시 중 오류: '+err.message+'</div>';
-  }
+  }catch(err){ document.getElementById('content').innerHTML='<div class="empty">오류: '+err.message+'</div>'; }
 })();
 </script>
 </body>
