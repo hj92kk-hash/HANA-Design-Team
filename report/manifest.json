@@ -1,0 +1,15 @@
+{
+  "name": "하나사인몰 매출 대시보드",
+  "short_name": "하나매출",
+  "description": "날짜별 매출 조회 대시보드",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f8",
+  "theme_color": "#0b66c3",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
