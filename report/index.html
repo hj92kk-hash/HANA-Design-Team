@@ -54,7 +54,7 @@
 </head>
 <body>
 <div class="topbar">
-  <div class="title">하나사인몰 매출 대시보드<small id="sub">불러오는 중…</small></div>
+  <div class="title">하나사인몰 매출 대시보드<small id="sub">불러오는 중…</small><small id="synced"></small></div>
   <div class="datebar">
     <button id="prev" aria-label="이전일">‹</button>
     <input type="date" id="picker">
@@ -151,4 +151,4 @@ async function show(dstr){
 }
 function step(dir){
   const cur=document.getElementById('picker').value; let t=null;
-  if(dir<0){ for(const d of DATES){ if(d<cur) t=d; e
+  if(dir<0){ for(const d 
