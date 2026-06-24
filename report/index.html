@@ -64,29 +64,21 @@
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
 <footer>하나사인몰 웹팀 · 날짜별 누적 매출 · Firestore</footer>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAuwwhnhSikI8pfHXu-_jVgcNkzHAyBCfY",
-  authDomain: "hanasm-daily-sales.firebaseapp.com",
-  projectId: "hanasm-daily-sales",
-  storageBucket: "hanasm-daily-sales.firebasestorage.app",
-  messagingSenderId: "487713667592",
-  appId: "1:487713667592:web:3e23128ca7cafc7d1defbd"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
+const PID="hanasm-daily-sales";
+const KEY="AIzaSyAuwwhnhSikI8pfHXu-_jVgcNkzHAyBCfY";
+const DOCBASE=`https://firestore.googleapis.com/v1/projects/${PID}/databases/(default)/documents`;
 const won = n => (n||0).toLocaleString('ko-KR');
-let DATES = [];
-const CACHE = {};
+let DATES=[]; const CACHE={};
 
+async function fetchDoc(path){
+  const r=await fetch(`${DOCBASE}/${path}?key=${KEY}`,{cache:"no-store"});
+  if(!r.ok) return null;
+  return (await r.json()).fields || null;
+}
 function pct(c,p){ return p? (c-p)/p*100 : null; }
 function deltaTag(c,p){
-  const v=pct(c,p);
-  if(v===null) return '<span class="flat">–</span>';
+  const v=pct(c,p); if(v===null) return '<span class="flat">–</span>';
   const a=v>0?'▲':(v<0?'▼':'■'), cls=v>0?'up':(v<0?'down':'flat');
   return `<span class="${cls}">${a}${Math.abs(v).toFixed(1)}%</span>`;
 }
@@ -98,16 +90,12 @@ function rowsTable(obj,head){
   for(const [k,v] of e) h+=`<tr><td>${k}</td><td>${won(v[0])}</td><td>${v[1]}</td></tr>`;
   return h+'</tbody></table>';
 }
-
 async function getRec(d){
   if(d in CACHE) return CACHE[d];
-  try{
-    const s=await getDoc(doc(db,"dailySales",d));
-    CACHE[d]= s.exists()? JSON.parse(s.data().json) : null;
-  }catch(e){ CACHE[d]=null; }
+  const f=await fetchDoc("dailySales/"+d);
+  CACHE[d]= (f && f.json)? JSON.parse(f.json.stringValue) : null;
   return CACHE[d];
 }
-
 function renderRec(dstr, rec, pr, pd){
   const c=document.getElementById('content');
   document.getElementById('sub').textContent = dstr + (rec? ` · 총 ${won(rec.total)}원 / ${rec.cnt}건` : ' · 매출 데이터 없음');
@@ -141,7 +129,6 @@ function renderRec(dstr, rec, pr, pd){
   if(rec.excl) h+=`<div class="note">제외 건수: ${rec.excl}건(총금액 "미정"·빈칸 등 정수 아님).</div>`;
   c.innerHTML=h;
 }
-
 async function show(dstr){
   document.getElementById('picker').value=dstr;
   document.getElementById('content').innerHTML='<div class="empty">불러오는 중…</div>';
@@ -151,4 +138,13 @@ async function show(dstr){
 }
 function step(dir){
   const cur=document.getElementById('picker').value; let t=null;
-  if(dir<0){ for(const d 
+  if(dir<0){ for(const d of DATES){ if(d<cur) t=d; else break; } }
+  else { for(const d of DATES){ if(d>cur){ t=d; break; } } }
+  if(t) show(t);
+}
+(async ()=>{
+  try{
+    const f=await fetchDoc("meta/index");
+    if(!f) throw new Error("no index");
+    const list=JSON.parse(f.dates.stringValue);
+    const g=f.generated?
