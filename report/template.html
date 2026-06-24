@@ -59,6 +59,7 @@
     <button id="prev" aria-label="이전일">&lsaquo;</button>
     <input type="date" id="picker">
     <button id="next" aria-label="다음일">&rsaquo;</button>
+    <button id="refresh" aria-label="새로고침" style="margin-left:4px;background:var(--accent);color:#fff;border:none;">&#x21bb;</button>
   </div>
 </div>
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
@@ -136,6 +137,7 @@ function step(dir){
     p.addEventListener('change', function(e){ render(e.target.value); });
     document.getElementById('prev').onclick=function(){ step(-1); };
     document.getElementById('next').onclick=function(){ step(1); };
+    var rb=document.getElementById('refresh'); if(rb) rb.onclick=function(){ location.href=location.pathname+'?t='+Date.now(); };
     setDate(def);
   }catch(err){
     document.getElementById('sub').textContent='오류';
