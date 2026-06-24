@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>하나사인몰 매출 대시보드</title>
+<style>
+  :root{--bg:#f4f6f8;--card:#fff;--ink:#1a1d21;--sub:#6b7280;--line:#e7eaee;--accent:#0b66c3;--up:#c0392b;--down:#1e7d4f;--chip:#eef3f9;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0;}
+  html,body{background:var(--bg);color:var(--ink);}
+  body{font-family:-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.5;font-size:15px;padding-bottom:48px;}
+  .topbar{position:sticky;top:0;z-index:10;background:#fff;border-bottom:1px solid var(--line);padding:12px 14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+  .title{font-size:16px;font-weight:700;}
+  .title small{display:block;font-weight:400;color:var(--sub);font-size:11.5px;margin-top:2px;}
+  .datebar{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .datebar button{flex:0 0 auto;width:38px;height:40px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:18px;color:var(--accent);font-weight:700;}
+  .datebar button:active{background:var(--chip);}
+  .datebar input[type=date]{flex:1;height:40px;border:1px solid var(--line);border-radius:10px;padding:0 10px;font-size:15px;color:var(--ink);background:#fff;}
+  .wrap{max-width:680px;margin:0 auto;padding:14px;}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 8px;text-align:center;}
+  .kpi .label{font-size:11px;color:var(--sub);}
+  .kpi .val{font-size:16px;font-weight:700;margin-top:3px;word-break:keep-all;}
+  .kpi .delta{font-size:10.5px;margin-top:3px;}
+  section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;}
+  h2{font-size:14px;font-weight:700;margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;}
+  h2 .sum{font-size:12px;color:var(--sub);font-weight:500;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{background:#f1f4f8;color:#333;font-weight:600;font-size:12px;}
+  tr:last-child td{border-bottom:none;}
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .pill{background:var(--chip);border-radius:12px;padding:10px;text-align:center;}
+  .pill .t{font-size:11px;color:var(--sub);}
+  .pill .v{font-size:15px;font-weight:700;margin-top:2px;}
+  .pill .c{font-size:11px;color:var(--sub);}
+  .up{color:var(--up);font-weight:600;}
+  .down{color:var(--down);font-weight:600;}
+  .flat{color:var(--sub);}
+  .note{font-size:11.5px;color:var(--sub);margin-top:10px;}
+  .empty{text-align:center;color:var(--sub);padding:40px 10px;}
+  .rank{display:inline-block;width:18px;color:var(--sub);font-size:12px;}
+  footer{text-align:center;color:var(--sub);font-size:11px;margin:18px 0 4px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="title">하나사인몰 매출 대시보드<small id="sub">날짜를 선택하면 해당일 매출을 보여줍니다</small></div>
+  <div class="datebar">
+    <button id="prev" aria-label="이전일">‹</button>
+    <input type="date" id="picker">
+    <button id="next" aria-label="다음일">›</button>
+  </div>
+</div>
+<div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
+<footer>하나사인몰 웹팀 · 날짜별 누적 매출 · 자동 집계</footer>
+
+<script>
+const won = n => (n||0).toLocaleString('ko-KR');
+let DB = {};      // date -> record
+let DATES = [];   // sorted available dates with data
+
+function pct(cur, prev){
+  if(!prev) return null;
+  return (cur-prev)/prev*100;
+}
+function deltaTag(cur, prev, invertGood){
+  const p = pct(cur, prev);
+  if(p===null) return '<span class="flat">–</span>';
+  const arrow = p>0?'▲':(p<0?'▼':'■');
+  const cls = p>0?'up':(p<0?'down':'flat');
+  return `<span class="${cls}">${arrow}${Math.abs(p).toFixed(1)}%</span>`;
+}
+function prevDateOf(dstr){
+  let prev=null;
+  for(const d of DATES){ if(d<dstr) prev=d; else break; }
+  return prev;
+}
+function topItems(items, n){
+  return Object.entries(items).sort((a,b)=>b[1][0]-a[1][0]).slice(0,n);
+}
+function rowsTable(obj, head){
+  const ents = Object.entries(obj).sort((a,b)=>b[1][0]-a[1][0]);
+  if(!ents.length) return '<div class="note">데이터 없음</div>';
+  let h=`<table><thead><tr><th>${head}</th><th>매출</th><th>건수</th></tr></thead><tbody>`;
+  for(const [k,v] of ents) h+=`<tr><td>${k}</td><td>${won(v[0])}</td><td>${v[1]}</td></tr>`;
+  return h+'</tbody></table>';
+}
+
+function render(dstr){
+  const c=document.getElementById('content');
+  const rec=DB[dstr];
+  document.getElementById('sub').textContent = dstr + (rec? ` · 총 ${won(rec.total)}원 / ${rec.cnt}건` : ' · 매출 데이터 없음');
+  if(!rec){ c.innerHTML='<div class="empty">선택한 날짜의 매출 데이터가 없습니다.</div>'; return; }
+  const pd=prevDateOf(dstr), pr=pd?DB[pd]:null;
+  const aov = rec.cnt? rec.total/rec.cnt : 0;
+  const paov = pr&&pr.cnt? pr.total/pr.cnt : 0;
+
+  let h='';
+  // KPIs
+  h+='<div class="kpis">';
+  h+=`<div class="kpi"><div class="label">총매출</div><div class="val">${won(rec.total)}</div><div class="delta">${deltaTag(rec.total, pr&&pr.total)}</div></div>`;
+  h+=`<div class="kpi"><div class="label">총건수</div><div class="val">${rec.cnt}건</div><div class="delta">${deltaTag(rec.cnt, pr&&pr.cnt)}</div></div>`;
+  h+=`<div class="kpi"><div class="label">건당단가</div><div class="val">${won(Math.round(aov))}</div><div class="delta">${deltaTag(aov, paov)}</div></div>`;
+  h+='</div>';
+
+  // HQ vs OP
+  h+='<section><h2>본사 vs 오픈마켓</h2><div class="split">';
+  h+=`<div class="pill"><div class="t">본사(사인몰)</div><div class="v">${won(rec.hq_total)}</div><div class="c">${rec.hq_cnt}건 · ${rec.total?((rec.hq_total/rec.total*100).toFixed(0)):0}%</div></div>`;
+  h+=`<div class="pill"><div class="t">오픈마켓</div><div class="v">${won(rec.op_total)}</div><div class="c">${rec.op_cnt}건 · ${rec.total?((rec.op_total/rec.total*100).toFixed(0)):0}%</div></div>`;
+  h+='</div></section>';
+
+  // 본사 진행자별
+  h+=`<section><h2>본사 진행자별 <span class="sum">${won(rec.hq_total)} / ${rec.hq_cnt}건</span></h2>${rowsTable(rec.hq,'진행자')}</section>`;
+  // 오픈마켓 채널별
+  h+=`<section><h2>오픈마켓 채널별 <span class="sum">${won(rec.op_total)} / ${rec.op_cnt}건</span></h2>${rowsTable(rec.op,'채널')}</section>`;
+
+  // 품목 TOP10
+  const its=topItems(rec.items,10);
+  let it='<table><thead><tr><th>순위 · 품목</th><th>매출</th><th>건수</th></tr></thead><tbody>';
+  its.forEach(([k,v],i)=> it+=`<tr><td><span class="rank">${i+1}</span>${k}</td><td>${won(v[0])}</td><td>${v[1]}</td></tr>`);
+  it+='</tbody></table>';
+  h+=`<section><h2>품목 TOP10 <span class="sum">매출순</span></h2>${it}<div class="note">※ 품목 분류는 품명 키워드 기반 추정값입니다.</div></section>`;
+
+  // 전일대비
+  if(pr){
+    const fmtPctOf=(c,p)=> p? (c/p*100).toFixed(1)+'%' : '–';
+    h+=`<section><h2>전일 대비 <span class="sum">${pd}</span></h2><table>
+      <thead><tr><th>지표</th><th>당일</th><th>전영업일</th><th>증감</th><th>전날의%</th></tr></thead><tbody>
+      <tr><td>총매출</td><td>${won(rec.total)}</td><td>${won(pr.total)}</td><td>${deltaTag(rec.total,pr.total)}</td><td>${fmtPctOf(rec.total,pr.total)}</td></tr>
+      <tr><td>총건수</td><td>${rec.cnt}</td><td>${pr.cnt}</td><td>${deltaTag(rec.cnt,pr.cnt)}</td><td>${fmtPctOf(rec.cnt,pr.cnt)}</td></tr>
+      <tr><td>본사</td><td>${won(rec.hq_total)}</td><td>${won(pr.hq_total)}</td><td>${deltaTag(rec.hq_total,pr.hq_total)}</td><td>${fmtPctOf(rec.hq_total,pr.hq_total)}</td></tr>
+      <tr><td>오픈마켓</td><td>${won(rec.op_total)}</td><td>${won(pr.op_total)}</td><td>${deltaTag(rec.op_total,pr.op_total)}</td><td>${fmtPctOf(rec.op_total,pr.op_total)}</td></tr>
+      <tr><td>건당단가</td><td>${won(Math.round(aov))}</td><td>${won(Math.round(paov))}</td><td>${deltaTag(aov,paov)}</td><td>${fmtPctOf(aov,paov)}</td></tr>
+      </tbody></table></section>`;
+  }
+  if(rec.excl) h+=`<div class="note">제외 건수: ${rec.excl}건(총금액 "미정"·빈칸 등 정수 아님).</div>`;
+  c.innerHTML=h;
+}
+
+function setDate(dstr){
+  document.getElementById('picker').value=dstr;
+  render(dstr);
+}
+function step(dir){
+  const cur=document.getElementById('picker').value;
+  // jump to nearest available date in that direction
+  let target=null;
+  if(dir<0){ for(const d of DATES){ if(d<cur) target=d; else break; } }
+  else { for(const d of DATES){ if(d>cur){ target=d; break; } } }
+  if(target) setDate(target);
+}
+
+fetch('sales-all.json?t='+Date.now()).then(r=>r.json()).then(j=>{
+  DB=j.data;
+  const today=new Date().toISOString().slice(0,10);
+  DATES=Object.keys(DB).sort();
+  // default = latest available date that is <= today (avoid future typo dates)
+  let def=null;
+  for(const d of DATES){ if(d<=today) def=d; }
+  if(!def) def=DATES[DATES.length-1];
+  const p=document.getElementById('picker');
+  p.min=DATES[0]; p.max=def;
+  p.addEventListener('change',e=>render(e.target.value));
+  document.getElementById('prev').onclick=()=>step(-1);
+  document.getElementById('next').onclick=()=>step(1);
+  setDate(def);
+}).catch(e=>{
+  document.getElementById('content').innerHTML='<div class="empty">데이터를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</div>';
+});
+</script>
+</body>
+</html>
