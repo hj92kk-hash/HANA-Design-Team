@@ -144,6 +144,8 @@ function monthlySection(dstr){
   var h='<section><h2>월 매출 <span class="sum">'+curY+'년 · 월별 합계</span></h2><table><thead><tr><th>월</th><th>매출액</th><th>건수</th><th>건당평균</th></tr></thead><tbody>';
   for(var i=0;i<months.length;i++){ var m=months[i],v=M[m],aov=v[1]?Math.round(v[0]/v[1]):0; var hi=(m===curM)?' style="background:#eef3ff;font-weight:800"':'';
     h+='<tr'+hi+'><td>'+monLabel(m)+(m===curM?' <span style="color:var(--sub);font-size:10px">(선택월)</span>':'')+'</td><td>'+won(v[0])+'원</td><td>'+v[1]+'건</td><td>'+won(aov)+'원</td></tr>'; }
+  var yT=0,yC=0; for(var i=0;i<months.length;i++){ yT+=M[months[i]][0]; yC+=M[months[i]][1]; }
+  h+='<tr style="background:#1b2a4a;color:#fff;font-weight:800"><td>'+curY+'년 매출 합계</td><td>'+won(yT)+'원</td><td>'+yC+'건</td><td>'+(yC?won(Math.round(yT/yC)):0)+'원</td></tr>';
   h+='</tbody></table>';
   var mFirst=curM+'-01', mLast=monthLastDay(curM);
   var W={}; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)!==curM) continue; var mo=mondayOf2(dk); if(!W[mo])W[mo]=[0,0]; var r=DB[dk]; W[mo][0]+=r.total; W[mo][1]+=r.cnt; }
@@ -153,11 +155,16 @@ function monthlySection(dstr){
     var s=(mo<mFirst?mFirst:mo), e=(suI>mLast?mLast:suI); mtot+=W[mo][0]; mcnt+=W[mo][1];
     h+='<tr><td>'+(i+1)+'주</td><td>'+s.slice(5).replace('-','/')+'~'+e.slice(5).replace('-','/')+'</td><td>'+won(W[mo][0])+'원</td><td>'+W[mo][1]+'건</td></tr>'; }
   h+='<tr style="background:#1b2a4a;color:#fff;font-weight:800"><td>'+monLabel(curM)+' 합계</td><td></td><td>'+won(mtot)+'원</td><td>'+mcnt+'건</td></tr></tbody></table>';
-  var days=[]; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)===curM) days.push([dk,DB[dk].total,DB[dk].cnt]); }
-  days.sort(function(a,b){return b[1]-a[1];}); days=days.slice(0,5);
-  h+='<h2 style="margin-top:16px">'+monLabel(curM)+' 일매출 TOP 5</h2><table><tbody>';
-  for(var i=0;i<days.length;i++){ var dk=days[i][0]; var wd=WD[new Date(dk+'T00:00:00').getDay()];
-    h+='<tr><td><span class="rank">'+(i+1)+'</span>'+dk.slice(5).replace('-','/')+' ('+wd+')</td><td>'+won(days[i][1])+'원</td><td style="color:var(--sub);font-size:11px">'+days[i][2]+'건</td></tr>'; }
+  var ords=[]; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)!==curM) continue; var t5=DB[dk].top5; if(t5&&t5.length){ for(var j=0;j<t5.length;j++) ords.push(t5[j]); } }
+  h+='<h2 style="margin-top:16px">'+monLabel(curM)+' 최고 매출 건 TOP 5 <span class="sum">건별 · 담당자·제목·품목</span></h2><table><tbody>';
+  if(ords.length){ ords.sort(function(a,b){return b[0]-a[0];}); ords=ords.slice(0,5);
+    for(var i=0;i<ords.length;i++){ var t=ords[i];
+      h+='<tr><td><span class="rank">'+(i+1)+'</span><b>'+esc(t[1]||'(제목미기재)')+'</b><div style="color:var(--sub);font-size:11px;font-weight:400;margin:2px 0 0 16px;line-height:1.35">'+esc(t[3])+' \u00B7 '+esc(t[2])+'</div></td><td style="vertical-align:top;font-weight:700;white-space:nowrap">'+won(t[0])+'원</td></tr>'; }
+  } else {
+    var days=[]; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)===curM) days.push([dk,DB[dk].total]); }
+    days.sort(function(a,b){return b[1]-a[1];}); days=days.slice(0,5);
+    for(var i=0;i<days.length;i++){ h+='<tr><td><span class="rank">'+(i+1)+'</span>'+days[i][0].slice(5).replace('-','/')+'</td><td>'+won(days[i][1])+'원</td></tr>'; }
+  }
   h+='</tbody></table></section>';
   return h;
 }
