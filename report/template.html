@@ -94,9 +94,10 @@ function badge(label,c,p){
 function prevDateOf(d){ var p=null; for(var i=0;i<DATES.length;i++){ if(DATES[i]<d) p=DATES[i]; else break; } return p; }
 function iso(dt){ return dt.toISOString().slice(0,10); }
 function weekRange(dstr){
+  function fmt(d){ var y=d.getFullYear(),m=d.getMonth()+1,da=d.getDate(); return y+'-'+(m<10?'0':'')+m+'-'+(da<10?'0':'')+da; }
   var dt=new Date(dstr+'T00:00:00'); var day=dt.getDay();
   var diff=(day===0?-6:1-day); var mon=new Date(dt); mon.setDate(dt.getDate()+diff);
-  var fri=new Date(mon); fri.setDate(mon.getDate()+4); return [iso(mon),iso(fri)];
+  var fri=new Date(mon); fri.setDate(mon.getDate()+4); return [fmt(mon),fmt(fri)];
 }
 function donut(frac){
   var C=2*Math.PI*54, hq=frac*C;
