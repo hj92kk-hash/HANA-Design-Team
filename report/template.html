@@ -130,6 +130,36 @@ function top5Section(arr){
       +'<td style="vertical-align:top;font-weight:700;white-space:nowrap">'+won(t[0])+'\uC6D0</td></tr>'; }
   return h+'</tbody></table></section>';
 }
+function isoL(dt){ var y=dt.getFullYear(),m=dt.getMonth()+1,d=dt.getDate(); return y+'-'+(m<10?'0':'')+m+'-'+(d<10?'0':'')+d; }
+function ymOf(d){ return d.slice(0,7); }
+function monLabel(m){ var p=m.split('-'); return (+p[0])+'년 '+(+p[1])+'월'; }
+function mondayOf2(dstr){ var dt=new Date(dstr+'T00:00:00'); var day=dt.getDay(); var diff=(day===0?-6:1-day); var mo=new Date(dt); mo.setDate(dt.getDate()+diff); return isoL(mo); }
+function monthLastDay(m){ var p=m.split('-'); var d=new Date(+p[0],+p[1],0); return isoL(d); }
+function monthlySection(dstr){
+  var curM=ymOf(dstr), WD=['일','월','화','수','목','금','토'];
+  var M={}; for(var i=0;i<DATES.length;i++){ var dk=DATES[i],r=DB[dk],m=ymOf(dk); if(!M[m])M[m]=[0,0]; M[m][0]+=r.total; M[m][1]+=r.cnt; }
+  var months=Object.keys(M).sort();
+  var h='<section><h2>월 매출 <span class="sum">전체 기간 · 월별 합계</span></h2><table><thead><tr><th>월</th><th>매출액</th><th>건수</th><th>건당평균</th></tr></thead><tbody>';
+  for(var i=0;i<months.length;i++){ var m=months[i],v=M[m],aov=v[1]?Math.round(v[0]/v[1]):0; var hi=(m===curM)?' style="background:#eef3ff;font-weight:800"':'';
+    h+='<tr'+hi+'><td>'+monLabel(m)+(m===curM?' <span style="color:var(--sub);font-size:10px">(선택월)</span>':'')+'</td><td>'+won(v[0])+'원</td><td>'+v[1]+'건</td><td>'+won(aov)+'원</td></tr>'; }
+  h+='</tbody></table>';
+  var mFirst=curM+'-01', mLast=monthLastDay(curM);
+  var W={}; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)!==curM) continue; var mo=mondayOf2(dk); if(!W[mo])W[mo]=[0,0]; var r=DB[dk]; W[mo][0]+=r.total; W[mo][1]+=r.cnt; }
+  var wks=Object.keys(W).sort(), mtot=0,mcnt=0;
+  h+='<h2 style="margin-top:16px">'+monLabel(curM)+' 주간 매출 <span class="sum">월~일</span></h2><table><thead><tr><th>주</th><th>기간</th><th>매출액</th><th>건수</th></tr></thead><tbody>';
+  for(var i=0;i<wks.length;i++){ var mo=wks[i]; var su=new Date(mo+'T00:00:00'); su.setDate(su.getDate()+6); var suI=isoL(su);
+    var s=(mo<mFirst?mFirst:mo), e=(suI>mLast?mLast:suI); mtot+=W[mo][0]; mcnt+=W[mo][1];
+    h+='<tr><td>'+(i+1)+'주</td><td>'+s.slice(5).replace('-','/')+'~'+e.slice(5).replace('-','/')+'</td><td>'+won(W[mo][0])+'원</td><td>'+W[mo][1]+'건</td></tr>'; }
+  h+='<tr style="background:#1b2a4a;color:#fff;font-weight:800"><td>'+monLabel(curM)+' 합계</td><td></td><td>'+won(mtot)+'원</td><td>'+mcnt+'건</td></tr></tbody></table>';
+  var days=[]; for(var i=0;i<DATES.length;i++){ var dk=DATES[i]; if(ymOf(dk)===curM) days.push([dk,DB[dk].total,DB[dk].cnt]); }
+  days.sort(function(a,b){return b[1]-a[1];}); days=days.slice(0,5);
+  h+='<h2 style="margin-top:16px">'+monLabel(curM)+' 일매출 TOP 5</h2><table><tbody>';
+  for(var i=0;i<days.length;i++){ var dk=days[i][0]; var wd=WD[new Date(dk+'T00:00:00').getDay()];
+    h+='<tr><td><span class="rank">'+(i+1)+'</span>'+dk.slice(5).replace('-','/')+' ('+wd+')</td><td>'+won(days[i][1])+'원</td><td style="color:var(--sub);font-size:11px">'+days[i][2]+'건</td></tr>'; }
+  h+='</tbody></table></section>';
+  return h;
+}
+
 function render(dstr){
   var c=document.getElementById('content'), rec=DB[dstr];
   if(!rec){ c.innerHTML='<div class="empty">선택한 날짜의 매출 데이터가 없습니다.</div>'; return; }
@@ -146,6 +176,7 @@ function render(dstr){
   h+='<div class="hbar"><i class="hq" style="width:'+hqr+'%"></i><i class="op" style="width:'+opr+'%"></i></div>';
   h+='<div class="hleg"><span>● 본사 '+won(rec.hq_total)+' ('+rec.hq_cnt+'건·'+hqr+'%)</span><span>오픈마켓 '+won(rec.op_total)+' ('+rec.op_cnt+'건·'+opr+'%) ●</span></div></div>';
   if(pr) h+='<div class="prevline">전일('+pd.replace(/-/g,'.').replace(/^20/,'')+'): '+won(pr.total)+'원 · '+pr.cnt+'건 → 오늘 '+won(rec.total)+'원 · '+rec.cnt+'건</div>';
+  h+=monthlySection(dstr);
   h+=top5Section(rec.top5);
   // donut
   h+='<section><h2>본사 · 오픈마켓</h2><div class="donutwrap">'+donut(rec.total?rec.hq_total/rec.total:0)
