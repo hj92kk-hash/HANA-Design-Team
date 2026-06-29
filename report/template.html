@@ -64,6 +64,24 @@
   .note{font-size:11px;color:var(--sub);}
   .empty{text-align:center;color:var(--sub);padding:40px 10px;}
   footer{text-align:center;color:var(--sub);font-size:10.5px;margin:16px 0 4px;padding:0 10px;}
+  .qbtns{display:flex;gap:8px;margin-top:10px;}
+  .qbtn{flex:1;border:none;border-radius:10px;padding:11px 8px;color:#fff;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;}
+  .qbtn.hq{background:var(--blue);} .qbtn.op{background:var(--teal);}
+  .qbtn b{font-weight:800;}
+  .qmodal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;}
+  .qsheet{background:#fff;width:100%;max-width:720px;max-height:86vh;border-radius:16px 16px 0 0;display:flex;flex-direction:column;animation:qup .2s ease;}
+  @keyframes qup{from{transform:translateY(30px);opacity:.6;}to{transform:translateY(0);opacity:1;}}
+  .qhead{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:#fff;border-radius:16px 16px 0 0;}
+  .qhead .qt{font-size:15px;font-weight:800;} .qhead .qm{font-size:11.5px;color:var(--sub);font-weight:500;margin-top:2px;}
+  .qhead button{border:none;background:var(--chip);width:30px;height:30px;border-radius:8px;font-size:15px;color:var(--sub);flex:0 0 auto;}
+  .qbody{overflow-y:auto;padding:6px 14px 24px;-webkit-overflow-scrolling:touch;}
+  .qrow{display:flex;justify-content:space-between;gap:10px;padding:10px 2px;border-bottom:1px solid var(--line);}
+  .qrow:last-child{border-bottom:none;}
+  .qprog{display:inline-block;background:var(--chip);color:#33415a;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;margin-right:6px;}
+  .qname{font-size:13px;font-weight:600;}
+  .qsub2{color:var(--sub);font-size:11px;margin:3px 0 0 26px;line-height:1.35;}
+  .qamt{flex:0 0 auto;font-weight:800;white-space:nowrap;font-size:13.5px;}
+  .qrk{display:inline-block;width:22px;color:var(--sub);font-size:11px;}
 </style>
 </head>
 <body>
@@ -78,6 +96,12 @@
   </div>
 </div>
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
+<div id="qmodal" class="qmodal" style="display:none" onclick="if(event.target===this)closeQ()">
+  <div class="qsheet">
+    <div class="qhead"><div><div class="qt" id="qttl"></div><div class="qm" id="qsub"></div></div><button onclick="closeQ()" aria-label="닫기">✕</button></div>
+    <div class="qbody" id="qbody"></div>
+  </div>
+</div>
 <footer>업체현황 시트 연동 · 본사(사인몰 진행자)/오픈마켓(채널) 기준 · 미정·금액미확정 건 제외 · 품목 분류는 키워드 추정</footer>
 <script>
 var EMBED = __DATA__;
@@ -170,8 +194,39 @@ function monthlySection(dstr){
   return h;
 }
 
+var QCACHE=null,QLOAD=false,QWANT=null;
+function renderQ(dstr,hq){
+  var arr=(QCACHE&&QCACHE[dstr])?QCACHE[dstr]:null;
+  var body=document.getElementById('qbody'),ttl=document.getElementById('qttl'),sub=document.getElementById('qsub');
+  ttl.textContent=(hq?'사인몰(본사) 견적':'오픈마켓 견적');
+  if(arr===null){ sub.textContent=''; body.innerHTML='<div class="empty">이 날짜의 상세 견적은 보관되어 있지 않습니다.</div>'; return; }
+  var list=arr.filter(function(o){return o[4]===(hq?1:0);});
+  var tot=0; for(var i=0;i<list.length;i++) tot+=list[i][0];
+  sub.textContent=dstr.replace(/-/g,'.').replace(/^20/,'')+' · '+list.length+'건 · 합계 '+won(tot)+'원';
+  if(!list.length){ body.innerHTML='<div class="empty">해당 견적이 없습니다.</div>'; return; }
+  var h='';
+  for(var i=0;i<list.length;i++){ var o=list[i];
+    h+='<div class="qrow"><div><span class="qrk">'+(i+1)+'</span><span class="qprog">'+esc(o[3])+'</span><span class="qname">'+esc(o[2])+'</span>'
+      +(o[1]?'<div class="qsub2">'+esc(o[1])+'</div>':'')+'</div>'
+      +'<div class="qamt">'+won(o[0])+'원</div></div>'; }
+  body.innerHTML=h;
+}
+function openQ(hq){
+  document.getElementById('qmodal').style.display='flex';
+  document.getElementById('qttl').textContent=(hq?'사인몰(본사) 견적':'오픈마켓 견적');
+  document.getElementById('qsub').textContent='';
+  QWANT={d:window.CUR,hq:hq};
+  if(QCACHE){ renderQ(window.CUR,hq); return; }
+  document.getElementById('qbody').innerHTML='<div class="empty">불러오는 중…</div>';
+  if(QLOAD) return; QLOAD=true;
+  fetch('orders.json?v='+encodeURIComponent(EMBED.generated||'')).then(function(r){return r.json();}).then(function(j){
+    QCACHE=j.data||j; QLOAD=false; if(QWANT) renderQ(QWANT.d,QWANT.hq);
+  }).catch(function(){ QLOAD=false; document.getElementById('qbody').innerHTML='<div class="empty">견적 데이터를 불러오지 못했습니다.</div>'; });
+}
+function closeQ(){ document.getElementById('qmodal').style.display='none'; }
 function render(dstr){
   var c=document.getElementById('content'), rec=DB[dstr];
+  window.CUR=dstr;
   if(!rec){ c.innerHTML='<div class="empty">선택한 날짜의 매출 데이터가 없습니다.</div>'; return; }
   var pd=prevDateOf(dstr), pr=pd?DB[pd]:null;
   var aov=rec.cnt?Math.round(rec.total/rec.cnt):0;
@@ -183,6 +238,7 @@ function render(dstr){
   h+='<div class="meta">총 '+rec.cnt+'건 · 건당 '+won(aov)+'원 · 제외 '+rec.excl+'건</div>';
   h+='<div class="badges">'+badge('전일대비 매출',rec.total,pr&&pr.total)+badge('전일대비 건수',rec.cnt,pr&&pr.cnt)
      +'<div class="badge">본사<b>'+won(rec.hq_total)+'</b></div><div class="badge">오픈마켓<b>'+won(rec.op_total)+'</b></div></div>';
+  h+='<div class="qbtns"><button class="qbtn hq" onclick="openQ(1)">📋 사인몰 견적 <b>'+rec.hq_cnt+'건</b></button><button class="qbtn op" onclick="openQ(0)">📋 오픈마켓 견적 <b>'+rec.op_cnt+'건</b></button></div>';
   h+='<div class="hbar"><i class="hq" style="width:'+hqr+'%"></i><i class="op" style="width:'+opr+'%"></i></div>';
   h+='<div class="hleg"><span>● 본사 '+won(rec.hq_total)+' ('+rec.hq_cnt+'건·'+hqr+'%)</span><span>오픈마켓 '+won(rec.op_total)+' ('+rec.op_cnt+'건·'+opr+'%) ●</span></div></div>';
   if(pr) h+='<div class="prevline">전일('+pd.replace(/-/g,'.').replace(/^20/,'')+'): '+won(pr.total)+'원 · '+pr.cnt+'건 → 오늘 '+won(rec.total)+'원 · '+rec.cnt+'건</div>';
