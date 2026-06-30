@@ -215,12 +215,12 @@ function extractSizes(name){
 function renderQ(dstr,hq){
   var arr=(QCACHE&&QCACHE[dstr])?QCACHE[dstr]:null;
   var body=document.getElementById('qbody'),ttl=document.getElementById('qttl'),sub=document.getElementById('qsub');
-  ttl.textContent=(hq?'사인몰(본사) 견적':'오픈마켓 견적');
-  if(arr===null){ sub.textContent=''; body.innerHTML='<div class="empty">이 날짜의 상세 견적은 보관되어 있지 않습니다.</div>'; return; }
+  ttl.textContent=(hq?'사인몰(본사) 견적':'오픈마켓 주문');
+  if(arr===null){ sub.textContent=''; body.innerHTML='<div class="empty">이 날짜의 상세 내역은 보관되어 있지 않습니다.</div>'; return; }
   var list=arr.filter(function(o){return o[4]===(hq?1:0);});
   var tot=0; for(var i=0;i<list.length;i++) tot+=list[i][0];
   sub.textContent=dstr.replace(/-/g,'.').replace(/^20/,'')+' · '+list.length+'건 · 합계 '+won(tot)+'원';
-  if(!list.length){ body.innerHTML='<div class="empty">해당 견적이 없습니다.</div>'; return; }
+  if(!list.length){ body.innerHTML='<div class="empty">해당 내역이 없습니다.</div>'; return; }
   var sz={},nosz=0;
   for(var i=0;i<list.length;i++){ var ss=extractSizes(list[i][2]); if(!ss.length){nosz++;continue;} for(var k=0;k<ss.length;k++) sz[ss[k]]=(sz[ss[k]]||0)+1; }
   var se=Object.keys(sz).map(function(k){return [k,sz[k]];}).sort(function(a,b){return b[1]-a[1];});
@@ -236,7 +236,7 @@ function renderQ(dstr,hq){
 }
 function openQ(hq){
   document.getElementById('qmodal').style.display='flex';
-  document.getElementById('qttl').textContent=(hq?'사인몰(본사) 견적':'오픈마켓 견적');
+  document.getElementById('qttl').textContent=(hq?'사인몰(본사) 견적':'오픈마켓 주문');
   document.getElementById('qsub').textContent='';
   QWANT={d:window.CUR,hq:hq};
   if(QCACHE){ renderQ(window.CUR,hq); return; }
@@ -261,7 +261,7 @@ function render(dstr){
   h+='<div class="meta">총 '+rec.cnt+'건 · 건당 '+won(aov)+'원 · 제외 '+rec.excl+'건</div>';
   h+='<div class="badges">'+badge('전일대비 매출',rec.total,pr&&pr.total)+badge('전일대비 건수',rec.cnt,pr&&pr.cnt)
      +'<div class="badge">본사<b>'+won(rec.hq_total)+'</b></div><div class="badge">오픈마켓<b>'+won(rec.op_total)+'</b></div></div>';
-  h+='<div class="qbtns"><button class="qbtn hq" onclick="openQ(1)">📋 사인몰 견적 <b>'+rec.hq_cnt+'건</b></button><button class="qbtn op" onclick="openQ(0)">📋 오픈마켓 견적 <b>'+rec.op_cnt+'건</b></button></div>';
+  h+='<div class="qbtns"><button class="qbtn hq" onclick="openQ(1)">📋 사인몰 견적 <b>'+rec.hq_cnt+'건</b></button><button class="qbtn op" onclick="openQ(0)">📋 오픈마켓 주문 <b>'+rec.op_cnt+'건</b></button></div>';
   h+='<div class="hbar"><i class="hq" style="width:'+hqr+'%"></i><i class="op" style="width:'+opr+'%"></i></div>';
   h+='<div class="hleg"><span>● 본사 '+won(rec.hq_total)+' ('+rec.hq_cnt+'건·'+hqr+'%)</span><span>오픈마켓 '+won(rec.op_total)+' ('+rec.op_cnt+'건·'+opr+'%) ●</span></div></div>';
   if(pr) h+='<div class="prevline">전일('+pd.replace(/-/g,'.').replace(/^20/,'')+'): '+won(pr.total)+'원 · '+pr.cnt+'건 → 오늘 '+won(rec.total)+'원 · '+rec.cnt+'건</div>';
