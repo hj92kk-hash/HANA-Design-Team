@@ -82,6 +82,13 @@
   .qsub2{color:var(--sub);font-size:11px;margin:3px 0 0 26px;line-height:1.35;}
   .qamt{flex:0 0 auto;font-weight:800;white-space:nowrap;font-size:13.5px;}
   .qrk{display:inline-block;width:22px;color:var(--sub);font-size:11px;}
+.qsz{background:#f6f8fc;border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin:6px 2px 10px;}
+  .qszh{font-size:12px;font-weight:800;color:#33415a;margin-bottom:7px;display:flex;gap:6px;align-items:baseline;}
+  .qszh span{font-size:10.5px;color:var(--sub);font-weight:500;}
+  .qszbody{display:flex;flex-wrap:wrap;gap:6px;}
+  .qchip{background:#fff;border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:12px;color:#1a1d21;}
+  .qchip b{color:var(--blue);font-weight:800;margin-left:3px;}
+  .qszn{font-size:10.5px;color:var(--sub);margin-top:7px;}
 </style>
 </head>
 <body>
@@ -195,6 +202,16 @@ function monthlySection(dstr){
 }
 
 var QCACHE=null,QLOAD=false,QWANT=null;
+function extractSizes(name){
+  var out=[],m;
+  m=name.match(/\d{2,5}\s*[*xX\u00d7]\s*\d{2,5}/g);
+  if(m)for(var i=0;i<m.length;i++)out.push(m[i].replace(/\s+/g,'').replace(/[xX\u00d7]/g,'*'));
+  m=name.match(/[\u00d8\u00f8\u03a6]\s*\d{2,4}/g);
+  if(m)for(var i=0;i<m.length;i++)out.push(m[i].replace(/\s+/g,''));
+  m=name.match(/\bA[0-9]\b/g);
+  if(m)for(var i=0;i<m.length;i++)out.push(m[i]);
+  return out;
+}
 function renderQ(dstr,hq){
   var arr=(QCACHE&&QCACHE[dstr])?QCACHE[dstr]:null;
   var body=document.getElementById('qbody'),ttl=document.getElementById('qttl'),sub=document.getElementById('qsub');
@@ -204,7 +221,13 @@ function renderQ(dstr,hq){
   var tot=0; for(var i=0;i<list.length;i++) tot+=list[i][0];
   sub.textContent=dstr.replace(/-/g,'.').replace(/^20/,'')+' · '+list.length+'건 · 합계 '+won(tot)+'원';
   if(!list.length){ body.innerHTML='<div class="empty">해당 견적이 없습니다.</div>'; return; }
+  var sz={},nosz=0;
+  for(var i=0;i<list.length;i++){ var ss=extractSizes(list[i][2]); if(!ss.length){nosz++;continue;} for(var k=0;k<ss.length;k++) sz[ss[k]]=(sz[ss[k]]||0)+1; }
+  var se=Object.keys(sz).map(function(k){return [k,sz[k]];}).sort(function(a,b){return b[1]-a[1];});
   var h='';
+  if(se.length){ h+='<div class="qsz"><div class="qszh">📐 많이 나간 사이즈 <span>상품명 기준 · 이 날짜</span></div><div class="qszbody">';
+    for(var i=0;i<Math.min(se.length,12);i++){ h+='<span class="qchip">'+esc(se[i][0])+'<b>'+se[i][1]+'</b></span>'; }
+    h+='</div>'+(nosz?'<div class="qszn">사이즈 미표기 '+nosz+'건 제외</div>':'')+'</div>'; }
   for(var i=0;i<list.length;i++){ var o=list[i];
     h+='<div class="qrow"><div><span class="qrk">'+(i+1)+'</span><span class="qprog">'+esc(o[3])+'</span><span class="qname">'+esc(o[2])+'</span>'
       +(o[1]?'<div class="qsub2">'+esc(o[1])+'</div>':'')+'</div>'
