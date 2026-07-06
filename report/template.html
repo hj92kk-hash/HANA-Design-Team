@@ -124,7 +124,7 @@ function liveSync(dstr,cb){
   if(s) s.textContent='🔄 실시간 동기화 중…';
   var cbn='__live'+Date.now();
   function cleanup(){ try{delete window[cbn];}catch(e){window[cbn]=undefined;} var el=document.getElementById(cbn); if(el&&el.parentNode) el.parentNode.removeChild(el); }
-  var tm=setTimeout(function(){ cleanup(); LIVE_BUSY=false; if(s)s.textContent=prev; if(cb)cb(false); },15000);
+  var tm=setTimeout(function(){ cleanup(); LIVE_BUSY=false; if(s)s.textContent=prev; if(cb)cb(false); },30000);
   window[cbn]=function(j){
     clearTimeout(tm); cleanup(); LIVE_BUSY=false;
     try{
