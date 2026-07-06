@@ -114,6 +114,34 @@
 var EMBED = __DATA__;
 var DB = EMBED.data || {};
 var DATES = Object.keys(DB).sort();
+var LIVE_URL="https://script.google.com/macros/s/AKfycbwcUiCMsG-c0L2RbShk010tqQXD-XxIfEz4vmxR5rRt_QMkMOmHCEQXTUUTcpLctp28yg/exec";
+var LIVE_BUSY=false;
+function liveSync(dstr,cb){
+  if(!dstr){ if(cb)cb(false); return; }
+  if(LIVE_BUSY){ if(cb)cb(false); return; }
+  LIVE_BUSY=true;
+  var s=document.getElementById('synced'), prev=s?s.textContent:'';
+  if(s) s.textContent='🔄 실시간 동기화 중…';
+  var cbn='__live'+Date.now();
+  function cleanup(){ try{delete window[cbn];}catch(e){window[cbn]=undefined;} var el=document.getElementById(cbn); if(el&&el.parentNode) el.parentNode.removeChild(el); }
+  var tm=setTimeout(function(){ cleanup(); LIVE_BUSY=false; if(s)s.textContent=prev; if(cb)cb(false); },15000);
+  window[cbn]=function(j){
+    clearTimeout(tm); cleanup(); LIVE_BUSY=false;
+    try{
+      if(j&&j.data){
+        for(var k in j.data){ DB[k]=j.data[k]; if(DATES.indexOf(k)<0) DATES.push(k); }
+        DATES.sort();
+        if(j.orders){ if(!QCACHE) QCACHE={}; for(var k2 in j.orders) QCACHE[k2]=j.orders[k2]; }
+        if(j.generated){ EMBED.generated=j.generated; if(s) s.textContent='🔄 마지막 동기화: '+j.generated+' (KST)'; }
+      }
+      if(cb) cb(true);
+    }catch(e){ if(cb) cb(false); }
+  };
+  var sc=document.createElement('script'); sc.id=cbn;
+  sc.onerror=function(){ clearTimeout(tm); cleanup(); LIVE_BUSY=false; if(s)s.textContent=prev; if(cb)cb(false); };
+  sc.src=LIVE_URL+'?date='+encodeURIComponent(dstr)+'&callback='+cbn+'&t='+Date.now();
+  document.body.appendChild(sc);
+}
 var won = function(n){ return (n||0).toLocaleString('ko-KR'); };
 function pctTxt(c,p){ if(!p) return null; return (c-p)/p*100; }
 function badge(label,c,p){
@@ -296,7 +324,7 @@ function render(dstr){
   wk+='</tbody></table></section>'; h+=wk;
   c.innerHTML=h;
 }
-function setDate(d){ document.getElementById('picker').value=d; render(d); }
+function setDate(d){ document.getElementById('picker').value=d; render(d); liveSync(d,function(ok){ if(ok&&window.CUR===d) render(d); }); }
 function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
   if(dir<0){ for(i=0;i<DATES.length;i++){ if(DATES[i]<cur) t=DATES[i]; else break; } }
   else { for(i=0;i<DATES.length;i++){ if(DATES[i]>cur){ t=DATES[i]; break; } } }
@@ -313,7 +341,7 @@ function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
     p.addEventListener('change',function(e){ render(e.target.value); });
     document.getElementById('prev').onclick=function(){ step(-1); };
     document.getElementById('next').onclick=function(){ step(1); };
-    document.getElementById('refresh').onclick=function(){ location.href=location.pathname+'?t='+Date.now(); };
+    document.getElementById('refresh').onclick=function(){ var d=window.CUR||document.getElementById('picker').value; liveSync(d,function(ok){ render(d); if(!ok){ location.href=location.pathname+'?t='+Date.now(); } }); };
     setDate(def);
   }catch(err){ document.getElementById('content').innerHTML='<div class="empty">오류: '+err.message+'</div>'; }
 })();
