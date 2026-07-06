@@ -132,7 +132,7 @@ function liveSync(dstr,cb){
         for(var k in j.data){ DB[k]=j.data[k]; if(DATES.indexOf(k)<0) DATES.push(k); }
         DATES.sort();
         if(j.orders){ if(!QCACHE) QCACHE={}; for(var k2 in j.orders) QCACHE[k2]=j.orders[k2]; }
-        if(j.generated){ EMBED.generated=j.generated; if(s) s.textContent='🔄 마지막 동기화: '+j.generated+' (KST)'; }
+        if(j.generated) EMBED.generated=j.generated; if(s){ var _n=new Date(), _p=function(x){return (x<10?'0':'')+x;}; s.textContent='🔄 마지막 동기화: '+_n.getFullYear()+'-'+_p(_n.getMonth()+1)+'-'+_p(_n.getDate())+' '+_p(_n.getHours())+':'+_p(_n.getMinutes())+' (실시간)'; }
       }
       if(cb) cb(true);
     }catch(e){ if(cb) cb(false); }
