@@ -334,9 +334,10 @@ function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
   try{
     var g=EMBED.generated||"";
     if(g) document.getElementById('synced').textContent='🔄 마지막 동기화: '+g+' (KST)';
-    var today=new Date().toISOString().slice(0,10);
+    var today=new Date(Date.now()+9*36e5).toISOString().slice(0,10);
     var def=null; for(var i=0;i<DATES.length;i++){ if(DATES[i]<=today) def=DATES[i]; }
     if(!def) def=DATES[DATES.length-1];
+    if(DATES.indexOf(today)>=0) def=today;
     var p=document.getElementById('picker'); p.min=DATES[0]; p.max=def;
     p.addEventListener('change',function(e){ render(e.target.value); });
     document.getElementById('prev').onclick=function(){ step(-1); };
