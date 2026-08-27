@@ -89,6 +89,37 @@
   .qchip{background:#fff;border:1px solid var(--line);border-radius:7px;padding:3px 8px;font-size:12px;color:#1a1d21;}
   .qchip b{color:var(--blue);font-weight:800;margin-left:3px;}
   .qszn{font-size:10.5px;color:var(--sub);margin-top:7px;}
+  .qchips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:4px;}
+  /* ===== 재주문 이력 탭 ===== */
+  .tabbar{display:flex;gap:6px;padding:8px 14px 0;background:#fff;border-bottom:1px solid var(--line);}
+  .tabbar button{border:1px solid var(--line);border-bottom:none;background:#f6f7f9;color:var(--sub);
+    font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;}
+  .tabbar button.on{background:#fff;color:var(--blue);box-shadow:inset 0 -2px 0 var(--blue);}
+  .rosum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;}
+  .rocard{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
+  .rocard .k{font-size:11px;color:var(--sub);}
+  .rocard .v{font-size:17px;font-weight:800;color:#1a1d21;margin-top:3px;}
+  .robar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;border:1px solid var(--line);
+    border-radius:10px;padding:8px 10px;margin-bottom:8px;}
+  .robar input[type=text]{flex:1;min-width:150px;border:1px solid var(--line);border-radius:7px;padding:6px 9px;font-size:13px;}
+  .robar select{border:1px solid var(--line);border-radius:7px;padding:6px 7px;font-size:12px;background:#fff;}
+  .robar .cnt{font-size:11.5px;color:var(--sub);margin-left:auto;}
+  .rotbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:12.5px;}
+  .rotbl th{background:#f6f7f9;color:var(--sub);font-size:11px;font-weight:700;padding:7px 8px;text-align:left;white-space:nowrap;}
+  .rotbl td{padding:7px 8px;border-top:1px solid var(--line);white-space:nowrap;}
+  .rotbl tbody tr{cursor:pointer;}
+  .rotbl tbody tr:hover{background:#f2f7ff;}
+  .rotbl .num{text-align:right;font-variant-numeric:tabular-nums;}
+  .rotbl .nm{white-space:normal;font-weight:700;color:#1a1d21;max-width:280px;}
+  .dot{display:inline-block;padding:1px 6px;border-radius:20px;font-size:10.5px;font-weight:700;}
+  .d0{background:#e8f5e9;color:#2e7d32;} .d1{background:#fff8e1;color:#f57f17;} .d2{background:#ffebee;color:#c62828;}
+  .romore{display:block;width:100%;margin-top:8px;padding:9px;border:1px solid var(--line);background:#fff;
+    border-radius:9px;font-size:12.5px;color:var(--blue);font-weight:700;cursor:pointer;}
+  .rodet h4{margin:12px 0 6px;font-size:12px;color:var(--sub);font-weight:700;}
+  .rodet .alias{font-size:11px;color:var(--sub);line-height:1.7;}
+  .rodet .alias b{display:inline-block;background:#f6f7f9;border:1px solid var(--line);border-radius:5px;
+    padding:1px 5px;margin:0 3px 3px 0;font-weight:600;color:#555;}
+  @media(max-width:640px){ .rosum{grid-template-columns:repeat(2,1fr);} .rotbl .hideS{display:none;} }
 </style>
 </head>
 <body>
@@ -102,11 +133,22 @@
     <button id="refresh" aria-label="새로고침">&#x21bb;</button>
   </div>
 </div>
+<div class="tabbar">
+  <button id="tabDaily" class="on" onclick="switchTab('daily')">일일 리포트</button>
+  <button id="tabRe" onclick="switchTab('re')">재주문 이력</button>
+</div>
 <div class="wrap" id="content"><div class="empty">불러오는 중…</div></div>
 <div id="qmodal" class="qmodal" style="display:none" onclick="if(event.target===this)closeQ()">
   <div class="qsheet">
     <div class="qhead"><div><div class="qt" id="qttl"></div><div class="qm" id="qsub"></div></div><button onclick="closeQ()" aria-label="닫기">✕</button></div>
     <div class="qbody" id="qbody"></div>
+  </div>
+</div>
+<div class="wrap" id="rowrap" style="display:none"><div class="empty">탭을 여는 중…</div></div>
+<div id="rmodal" class="qmodal" style="display:none" onclick="if(event.target===this)closeR()">
+  <div class="qsheet">
+    <div class="qhead"><div><div class="qt" id="rttl"></div><div class="qm" id="rsub"></div></div><button onclick="closeR()" aria-label="닫기">✕</button></div>
+    <div class="qbody rodet" id="rbody"></div>
   </div>
 </div>
 <footer>업체현황 시트 연동 · 본사(사인몰 진행자)/오픈마켓(채널) 기준 · 미정·금액미확정 건 제외 · 품목 분류는 키워드 추정</footer>
@@ -346,6 +388,170 @@ function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
     setDate(def);
   }catch(err){ document.getElementById('content').innerHTML='<div class="empty">오류: '+err.message+'</div>'; }
 })();
+/* ===================== 재주문 이력 탭 ===================== */
+var RO=null, ROS=null, ROLIST=[], ROSHOW=200, ROTAB='daily';
+function switchTab(t){
+  ROTAB=t;
+  var isRe=(t==='re');
+  document.getElementById('tabDaily').className=isRe?'':'on';
+  document.getElementById('tabRe').className=isRe?'on':'';
+  document.getElementById('content').style.display=isRe?'none':'';
+  document.getElementById('rowrap').style.display=isRe?'':'none';
+  var db=document.querySelector('.datebar'); if(db) db.style.visibility=isRe?'hidden':'';
+  if(isRe && !RO) loadRO();
+}
+function loadRO(){
+  var w=document.getElementById('rowrap');
+  w.innerHTML='<div class="empty">재주문 데이터를 불러오는 중… (약 2MB)</div>';
+  fetch('reorder.json',{cache:'no-cache'}).then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+  }).then(function(j){ RO=j; renderRO(true); })
+  .catch(function(e){ w.innerHTML='<div class="empty">재주문 데이터를 불러오지 못했습니다 ('+e.message+')<br>잠시 후 새로고침해 주세요.</div>'; });
+}
+function roDays(d){ var t=new Date(Date.now()+9*36e5); var x=new Date(d+'T00:00:00Z');
+  return Math.floor((Date.UTC(t.getUTCFullYear(),t.getUTCMonth(),t.getUTCDate())-x.getTime())/864e5); }
+function won(n){ return (n||0).toLocaleString('ko-KR'); }
+function manwon(n){ n=n||0; return n>=1e8?(n/1e8).toFixed(1)+'억':n>=1e4?Math.round(n/1e4).toLocaleString('ko-KR')+'만':won(n); }
+function dotCls(g){ return g<=90?'d0':(g<=180?'d1':'d2'); }
+function roTypes(){
+  var s={}; for(var k in RO.cust){ var t=RO.type[RO.cust[k].ty]||''; if(t) s[t]=(s[t]||0)+1; }
+  return Object.keys(s).sort(function(a,b){ return s[b]-s[a]; });
+}
+function renderRO(first){
+  var w=document.getElementById('rowrap');
+  if(first){
+    var opts=roTypes().map(function(t){ return '<option value="'+esc(t)+'">'+esc(t)+'</option>'; }).join('');
+    w.innerHTML=
+     '<div class="rosum" id="rosum"></div>'+
+     '<div class="robar">'+
+       '<input type="text" id="roq" placeholder="거래처명 검색 (2자 이상)" oninput="roDebounce()">'+
+       '<select id="ron" onchange="roApply()"><option value="2">2회 이상</option><option value="3">3회 이상</option><option value="5">5회 이상</option><option value="10">10회 이상</option></select>'+
+       '<select id="roty" onchange="roApply()"><option value="">전체 유형</option>'+opts+'</select>'+
+       '<select id="rod" onchange="roApply()"><option value="0">기간 전체</option><option value="90">90일 이상 미주문</option><option value="180">180일 이상 미주문</option><option value="365">1년 이상 미주문</option><option value="-30">최근 30일 주문</option></select>'+
+       '<select id="ros" onchange="roApply()"><option value="n">주문횟수순</option><option value="tot">누적매출순</option><option value="last">최근주문순</option><option value="cyc">재주문주기 짧은순</option></select>'+
+       '<span class="cnt" id="rocnt"></span>'+
+     '</div>'+
+     '<div id="rotblwrap"></div>';
+  }
+  roApply();
+}
+var roTimer=null;
+function roDebounce(){ clearTimeout(roTimer); roTimer=setTimeout(roApply,220); }
+function roApply(){
+  if(!RO) return;
+  var q=(document.getElementById('roq').value||'').replace(/\s+/g,'');
+  var minN=+document.getElementById('ron').value, ty=document.getElementById('roty').value;
+  var dd=+document.getElementById('rod').value, sort=document.getElementById('ros').value;
+  var arr=[];
+  for(var k in RO.cust){
+    var v=RO.cust[k];
+    if(v.n<minN) continue;
+    if(ty && (RO.type[v.ty]||'')!==ty) continue;
+    var gap=roDays(v.last);
+    if(dd>0 && gap<dd) continue;
+    if(dd<0 && gap>-dd) continue;
+    if(q){
+      var hit=(v.nm.replace(/\s+/g,'').indexOf(q)>=0)||(k.indexOf(q)>=0);
+      if(!hit && v.al.length){ for(var i=0;i<v.al.length;i++){ if(v.al[i].indexOf(q)>=0){hit=true;break;} } }
+      if(!hit) continue;
+    }
+    arr.push([k,v,gap]);
+  }
+  arr.sort(function(a,b){
+    if(sort==='tot') return b[1].tot-a[1].tot;
+    if(sort==='last') return a[2]-b[2];
+    if(sort==='cyc') return (a[1].cyc||9999)-(b[1].cyc||9999);
+    return b[1].n-a[1].n;
+  });
+  ROLIST=arr; ROSHOW=200;
+  // 요약
+  var tot=0,cs=[],hib=0;
+  for(var j=0;j<arr.length;j++){ tot+=arr[j][1].tot; if(arr[j][1].cyc) cs.push(arr[j][1].cyc); if(arr[j][2]>=90) hib++; }
+  document.getElementById('rosum').innerHTML=
+    '<div class="rocard"><div class="k">재주문 거래처</div><div class="v">'+won(arr.length)+'<span style="font-size:12px;font-weight:600;color:#8b9099"> 곳</span></div></div>'+
+    '<div class="rocard"><div class="k">누적 매출</div><div class="v">'+manwon(tot)+'</div></div>'+
+    '<div class="rocard"><div class="k">평균 재주문 주기</div><div class="v">'+(cs.length?Math.round(cs.reduce(function(a,b){return a+b;},0)/cs.length):'-')+'<span style="font-size:12px;font-weight:600;color:#8b9099"> 일</span></div></div>'+
+    '<div class="rocard"><div class="k">90일 이상 미주문</div><div class="v" style="color:#c62828">'+won(hib)+'<span style="font-size:12px;font-weight:600;color:#8b9099"> 곳</span></div></div>';
+  document.getElementById('rocnt').textContent=won(arr.length)+'곳';
+  roTable();
+}
+function roTable(){
+  var a=ROLIST, w=document.getElementById('rotblwrap');
+  if(!a.length){
+    var q=(document.getElementById('roq').value||'').replace(/\s+/g,'');
+    w.innerHTML='<div class="empty">조건에 맞는 거래처가 없습니다.'+(q.length>=2?'<br>1회 주문 거래처에서 찾아보세요.':'')+'</div>'+singleBtn();
+    return;
+  }
+  var h='<table class="rotbl"><thead><tr><th>거래처</th><th class="hideS">유형</th><th class="num">횟수</th><th class="num">누적매출</th><th class="num hideS">평균객단가</th><th>최근주문</th><th class="num">경과</th><th class="num hideS">주기</th><th class="hideS">주력품목</th></tr></thead><tbody>';
+  for(var i=0;i<Math.min(a.length,ROSHOW);i++){
+    var k=a[i][0], v=a[i][1], g=a[i][2];
+    var mainCat=v.ct.length?(RO.cat[v.ct[0][0]]||'-'):'-';
+    h+='<tr onclick="openR(\''+k.replace(/'/g,"\\'")+'\')">'+
+       '<td class="nm">'+esc(v.nm)+(v.al.length>1?' <span style="font-size:10px;color:#8b9099;font-weight:600">+'+(v.al.length-1)+'</span>':'')+'</td>'+
+       '<td class="hideS" style="color:#8b9099;font-size:11.5px">'+esc(RO.type[v.ty]||'-')+'</td>'+
+       '<td class="num"><b>'+v.n+'</b></td>'+
+       '<td class="num">'+won(v.tot)+'</td>'+
+       '<td class="num hideS">'+won(Math.round(v.tot/v.n))+'</td>'+
+       '<td>'+v.last+'</td>'+
+       '<td class="num"><span class="dot '+dotCls(g)+'">'+g+'일</span></td>'+
+       '<td class="num hideS">'+(v.cyc?v.cyc+'일':'-')+'</td>'+
+       '<td class="hideS" style="color:#8b9099;font-size:11.5px">'+esc(mainCat)+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  if(a.length>ROSHOW) h+='<button class="romore" onclick="ROSHOW+=300;roTable()">더 보기 ('+won(a.length-ROSHOW)+'곳 남음)</button>';
+  w.innerHTML=h+singleBtn();
+}
+function singleBtn(){
+  var q=(document.getElementById('roq').value||'').replace(/\s+/g,'');
+  if(q.length<2) return '';
+  if(!ROS) return '<button class="romore" onclick="loadSingle()">1회 주문 거래처에서도 찾기 (추가 로드)</button>';
+  var hit=[];
+  for(var i=0;i<ROS.rows.length;i++){ var r=ROS.rows[i];
+    if(r[1].replace(/\s+/g,'').indexOf(q)>=0||r[0].indexOf(q)>=0) hit.push(r); }
+  if(!hit.length) return '<div class="empty" style="margin-top:8px">1회 주문 거래처에도 없습니다.</div>';
+  var h='<h4 style="margin:14px 0 6px;font-size:12px;color:#8b9099">1회 주문 거래처 '+hit.length+'곳</h4>'+
+        '<table class="rotbl"><thead><tr><th>거래처</th><th class="hideS">유형</th><th>주문일</th><th class="num">금액</th><th class="hideS">품명</th><th class="hideS">진행자</th></tr></thead><tbody>';
+  for(var j=0;j<Math.min(hit.length,100);j++){ var r=hit[j];
+    h+='<tr style="cursor:default"><td class="nm">'+esc(r[1])+'</td><td class="hideS" style="color:#8b9099;font-size:11.5px">'+esc(ROS.type[r[6]]||'-')+'</td><td>'+r[2]+'</td><td class="num">'+won(r[3])+'</td><td class="hideS" style="font-size:11.5px">'+esc(r[4])+'</td><td class="hideS" style="color:#8b9099;font-size:11.5px">'+esc(ROS.prog[r[5]]||'')+'</td></tr>'; }
+  h+='</tbody></table>';
+  if(hit.length>100) h+='<div class="empty" style="font-size:11.5px">상위 100곳만 표시 · 검색어를 더 입력해 보세요</div>';
+  return h;
+}
+function loadSingle(){
+  var w=document.getElementById('rotblwrap');
+  var tmp=document.createElement('div'); tmp.className='empty'; tmp.textContent='1회 거래처 데이터 로드 중…'; w.appendChild(tmp);
+  fetch('reorder-single.json',{cache:'no-cache'}).then(function(r){ return r.json(); })
+   .then(function(j){ ROS=j; roTable(); })
+   .catch(function(e){ tmp.textContent='로드 실패: '+e.message; });
+}
+function openR(k){
+  var v=RO.cust[k]; if(!v) return;
+  var g=roDays(v.last), avg=Math.round(v.tot/v.n);
+  document.getElementById('rttl').textContent=v.nm;
+  document.getElementById('rsub').textContent=(RO.type[v.ty]||'')+' · '+v.first+' ~ '+v.last+' · 총 '+v.n+'회';
+  var h='<div class="qchips">'+
+    '<span class="qchip">주문횟수<b>'+v.n+'회</b></span>'+
+    '<span class="qchip">누적매출<b>'+won(v.tot)+'원</b></span>'+
+    '<span class="qchip">평균객단가<b>'+won(avg)+'원</b></span>'+
+    '<span class="qchip">평균 재주문주기<b>'+(v.cyc?v.cyc+'일':'-')+'</b></span>'+
+    '<span class="qchip">마지막 주문 후<b>'+g+'일</b></span></div>';
+  h+='<h4>재구매 품목 패턴</h4><table class="rotbl"><thead><tr><th>품목분류</th><th class="num">건수</th><th class="num">수량</th><th class="num">금액</th><th class="num">비중</th></tr></thead><tbody>';
+  for(var i=0;i<v.ct.length;i++){ var c=v.ct[i];
+    h+='<tr style="cursor:default"><td>'+esc(RO.cat[c[0]]||'-')+'</td><td class="num">'+c[1]+'</td><td class="num">'+won(c[3])+'</td><td class="num">'+won(c[2])+'</td><td class="num">'+(v.tot?Math.round(c[2]/v.tot*100):0)+'%</td></tr>'; }
+  h+='</tbody></table>';
+  h+='<h4>주문 이력 ('+v.n+'건)</h4><table class="rotbl"><thead><tr><th>일자</th><th>품명</th><th class="num">금액</th><th class="hideS">진행자</th></tr></thead><tbody>';
+  for(var j=v.h.length-1;j>=0;j--){ var x=v.h[j];
+    h+='<tr style="cursor:default"><td>'+x[0]+'</td><td class="nm" style="font-weight:500">'+esc(x[2])+'</td><td class="num">'+won(x[1])+'</td><td class="hideS" style="color:#8b9099;font-size:11.5px">'+esc(RO.prog[x[3]]||'')+'</td></tr>'; }
+  h+='</tbody></table>';
+  if(v.al&&v.al.length>1){
+    h+='<h4>병합된 거래처 표기 ('+v.al.length+'개)</h4><div class="alias">';
+    for(var m=0;m<v.al.length;m++) h+='<b>'+esc(v.al[m])+'</b>';
+    h+='</div><div class="qszn">※ 관리주체 접미어·법인표기·담당자 괄호를 정리해 같은 거래처로 합산했습니다.</div>';
+  }
+  document.getElementById('rbody').innerHTML=h;
+  document.getElementById('rmodal').style.display='flex';
+}
+function closeR(){ document.getElementById('rmodal').style.display='none'; }
 </script>
 </body>
 </html>
