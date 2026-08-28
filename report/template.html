@@ -364,7 +364,9 @@ function render(dstr){
   wk+='<table><thead><tr><th>품목 (많이 팔린 순)</th><th>누적건수</th><th>누적매출</th></tr></thead><tbody>';
   for(var i=0;i<we.length;i++){ wk+='<tr><td><span class="rank">'+(i+1)+'</span>'+we[i][0]+'</td><td>'+we[i][1][1]+'건</td><td>'+won(we[i][1][0])+'</td></tr>'; }
   wk+='</tbody></table></section>'; h+=wk;
+  h+='<section id="rosec"><h2>\uCD5C\uADFC \uC7AC\uC8FC\uBB38 \uAC70\uB798\uCC98 <span class="sum">\uBD88\uB7EC\uC624\uB294 \uC911\u2026</span></h2></section>';
   c.innerHTML=h;
+  roFetch(function(){ fillRecentRO(dstr); });
 }
 function setDate(d){ document.getElementById('picker').value=d; render(d); liveSync(d,function(ok){ if(ok&&window.CUR===d) render(d); }); }
 function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
@@ -388,6 +390,63 @@ function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
     setDate(def);
   }catch(err){ document.getElementById('content').innerHTML='<div class="empty">오류: '+err.message+'</div>'; }
 })();
+
+/* ===== 일일 리포트: 최근 재주문 거래처 ===== */
+var ROLOAD=false, ROQ=[];
+function roFetch(cb){
+  if(RO){ cb(); return; }
+  ROQ.push(cb);
+  if(ROLOAD) return;
+  ROLOAD=true;
+  fetch('reorder.json',{cache:'no-cache'}).then(function(r){
+    if(!r.ok) throw new Error('HTTP '+r.status); return r.json();
+  }).then(function(j){
+    RO=j; ROLOAD=false; var q=ROQ; ROQ=[];
+    for(var i=0;i<q.length;i++){ try{ q[i](); }catch(e){} }
+  }).catch(function(e){
+    ROLOAD=false; ROQ=[];
+    var el=document.getElementById('rosec');
+    if(el) el.innerHTML='<h2>\uCD5C\uADFC \uC7AC\uC8FC\uBB38 \uAC70\uB798\uCC98</h2><div class="note">\uC7AC\uC8FC\uBB38 \uB370\uC774\uD130\uB97C \uBD88\uB7EC\uC624\uC9C0 \uBABB\uD588\uC2B5\uB2C8\uB2E4 ('+e.message+')</div>';
+  });
+}
+function roGap(a,b){ return Math.round((new Date(b+'T00:00:00Z')-new Date(a+'T00:00:00Z'))/864e5); }
+function roShift(d,n){ var t=new Date(d+'T00:00:00Z'); t.setUTCDate(t.getUTCDate()+n); return t.toISOString().slice(0,10); }
+function fillRecentRO(dstr){
+  var el=document.getElementById('rosec');
+  if(!el||!RO||!RO.cust) return;
+  var arr=[], w7=roShift(dstr,-6), sameDay=0, week=0;
+  for(var k in RO.cust){
+    var v=RO.cust[k], hh=v.h||[];
+    if(hh.length<2) continue;
+    var hs=[]; for(var i=0;i<hh.length;i++){ if(hh[i][0]<=dstr) hs.push(hh[i]); }
+    if(hs.length<2) continue;
+    var last=hs[hs.length-1][0], prev=hs[hs.length-2][0], t=0;
+    for(var j=0;j<hs.length;j++) t+=hs[j][1];
+    if(last===dstr) sameDay++;
+    if(last>=w7) week++;
+    arr.push([k,v.nm||k,last,prev,hs.length,t,hs[hs.length-1][2]||'']);
+  }
+  arr.sort(function(a,b){ if(a[2]!==b[2]) return a[2]<b[2]?1:-1; return b[5]-a[5]; });
+  var h='<h2>\uCD5C\uADFC \uC7AC\uC8FC\uBB38 \uAC70\uB798\uCC98 <span class="sum">2\uD68C \uC774\uC0C1 \uC8FC\uBB38 \u00B7 \uCD5C\uADFC \uC7AC\uC8FC\uBB38\uC77C\uC21C</span></h2>';
+  h+='<div class="wsum"><div class="b"><div class="t">\uD574\uB2F9\uC77C \uC7AC\uC8FC\uBB38</div><div class="v">'+sameDay+'\uAC1C\uC0AC</div></div>'
+    +'<div class="b"><div class="t">\uCD5C\uADFC 7\uC77C \uC7AC\uC8FC\uBB38</div><div class="v">'+week+'\uAC1C\uC0AC</div></div></div>';
+  if(!arr.length){ el.innerHTML=h+'<div class="note">\uD574\uB2F9 \uC2DC\uC810 \uAE30\uC900 \uC7AC\uC8FC\uBB38 \uAC70\uB798\uCC98\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4.</div>'; return; }
+  h+='<table><thead><tr><th>\uAC70\uB798\uCC98</th><th>\uCD5C\uADFC \uC7AC\uC8FC\uBB38</th><th>\uC9C1\uC804 \uAC04\uACA9</th><th>\uD69F\uC218</th><th>\uB204\uC801\uB9E4\uCD9C</th></tr></thead><tbody>';
+  var n=Math.min(arr.length,12);
+  for(var x=0;x<n;x++){
+    var a=arr[x], g=roGap(a[3],a[2]);
+    h+='<tr style="cursor:pointer" onclick="openR(\''+String(a[0]).replace(/'/g,"\\'")+'\')">'
+      +'<td><span class="rank">'+(x+1)+'</span>'+esc(a[1])+'</td>'
+      +'<td>'+a[2].slice(2).replace(/-/g,'/')+'</td>'
+      +'<td>'+g+'\uC77C\uB9CC</td>'
+      +'<td>'+a[4]+'\uD68C</td>'
+      +'<td>'+won(a[5])+'</td></tr>';
+  }
+  h+='</tbody></table>';
+  h+='<div class="note" style="margin-top:8px">\uCD1D '+arr.length+'\uAC1C\uC0AC \u00B7 \uC0C1\uC704 '+n+'\uAC1C\uC0AC \uD45C\uC2DC. \uD589\uC744 \uB204\uB974\uBA74 \uC0C1\uC138 \uC8FC\uBB38\uC774\uB825\uC774 \uC5F4\uB9BD\uB2C8\uB2E4. \uC804\uCCB4\uB294 \uC0C1\uB2E8 \u300C\uC7AC\uC8FC\uBB38 \uC774\uB825\u300D \uD0ED\uC5D0\uC11C \uD655\uC778\uD558\uC138\uC694.</div>';
+  el.innerHTML=h;
+}
+
 /* ===================== 재주문 이력 탭 ===================== */
 var RO=null, ROS=null, ROLIST=[], ROSHOW=200, ROTAB='daily';
 function switchTab(t){
