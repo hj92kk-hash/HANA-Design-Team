@@ -395,6 +395,7 @@ function step(dir){ var cur=document.getElementById('picker').value,t=null,i;
 var ROLOAD=false, ROQ=[];
 function roFetch(cb){
   if(RO){ cb(); return; }
+  if(!ROQ) ROQ=[];
   ROQ.push(cb);
   if(ROLOAD) return;
   ROLOAD=true;
