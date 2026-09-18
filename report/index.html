@@ -1,135 +1,351 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>하나사인몰 오늘 매출</title><style>
   @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap');
-  :root { --page:#f7f6f2; --surface:#ffffff; --ink:#14171a; --ink-2:#52514e; --ink-3:#898781; --border:rgba(11,11,11,0.10); --gridline:#e1e0d9; --hq:#2a78d6; --hq-wash:rgba(42,120,214,0.10); --market:#eb6834; --market-wash:rgba(235,104,52,0.10); --accent:#8a5cf6; }
-  @media (prefers-color-scheme: dark) { :root { --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781; --border:rgba(255,255,255,0.10); --gridline:#2c2c2a; --hq:#3987e5; --hq-wash:rgba(57,135,229,0.14); --market:#d95926; --market-wash:rgba(217,89,38,0.14); --accent:#a684fa; } }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--page); color:var(--ink); font-family:"IBM Plex Sans KR","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif; }
-  .page { max-width:920px; margin:0 auto; padding:28px 20px 56px; display:flex; flex-direction:column; gap:22px; }
+  :root { --page:#f7f6f2; --surface:#ffffff; --ink:#14171a; --ink-2:#52514e; --ink-3:#898781; --border:rgba(11,11,11,0.10); --gridline:#e1e0d9; --hq:#2a78d6; --hq-wash:rgba(42,120,214,0.10); --market:#eb6834; --market-wash:rgba(235,104,52,0.10); --accent:#8a5cf6; --bad:#b3261e; }
+  @media (prefers-color-scheme: dark) { :root { --page:#0d0d0d; --surface:#1a1a19; --ink:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781; --border:rgba(255,255,255,0.10); --gridline:#2c2c2a; --hq:#3987e5; --hq-wash:rgba(57,135,229,0.14); --market:#d95926; --market-wash:rgba(217,89,38,0.14); --accent:#a684fa; --bad:#e0554a; } }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { -webkit-text-size-adjust:100%; }
+  body { margin:0; background:var(--page); color:var(--ink); font-family:"IBM Plex Sans KR","Noto Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif; overflow-x:hidden; }
+  .page { max-width:640px; margin:0 auto; padding:18px 16px 48px; display:flex; flex-direction:column; gap:18px; }
   .head { display:flex; flex-direction:column; gap:6px; }
-  .eyebrow { font-size:12px; font-weight:600; letter-spacing:.09em; color:var(--hq); text-transform:uppercase; }
-  h1 { margin:0; font-family:"Black Han Sans","IBM Plex Sans KR",sans-serif; font-weight:400; font-size:clamp(28px,5vw,38px); }
-  .asof { font-size:13px; color:var(--ink-3); }
+  .eyebrow { font-size:11px; font-weight:600; letter-spacing:.09em; color:var(--hq); text-transform:uppercase; }
+  h1 { margin:0; font-family:"Black Han Sans","IBM Plex Sans KR",sans-serif; font-weight:400; font-size:clamp(24px,7vw,32px); }
+  .asof { font-size:12.5px; color:var(--ink-3); display:flex; flex-wrap:wrap; align-items:center; gap:6px; row-gap:4px; }
   .asof strong { color:var(--ink-2); font-weight:600; }
-  h2.sec { margin:0; font-size:15.5px; font-weight:700; display:flex; align-items:center; gap:7px; }
-  .sec-note { font-size:12px; color:var(--ink-3); font-weight:500; }
-  section { display:flex; flex-direction:column; gap:10px; }
-  .today-card { background:linear-gradient(135deg,#1c2b56 0%,#121c3d 100%); color:#fff; border-radius:14px; padding:20px 22px 18px; display:flex; flex-direction:column; gap:16px; }
-  .today-card-top { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
-  .today-main { display:flex; flex-direction:column; gap:6px; min-width:220px; }
-  .today-label { font-size:13px; font-weight:600; color:rgba(255,255,255,.75); }
+  .toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .btn { appearance:none; border:1px solid var(--border); background:var(--surface); color:var(--ink); font:inherit; font-weight:600; font-size:13.5px; padding:10px 16px; border-radius:9px; cursor:pointer; display:inline-flex; align-items:center; gap:6px; -webkit-user-select:none; user-select:none; }
+  .btn.primary { background:var(--hq); border-color:var(--hq); color:#fff; }
+  .btn:disabled { opacity:.55; }
+  .toolbar-status { font-size:12px; color:var(--ink-3); }
+  h2.sec { margin:0; font-size:14.5px; font-weight:700; display:flex; align-items:center; gap:7px; }
+  .sec-note { font-size:11.5px; color:var(--ink-3); font-weight:500; }
+  section { display:flex; flex-direction:column; gap:9px; }
+  .today-card { background:linear-gradient(135deg,#1c2b56 0%,#121c3d 100%); color:#fff; border-radius:14px; padding:18px 16px 16px; display:flex; flex-direction:column; gap:14px; }
+  .today-card-top { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; }
+  .today-main { display:flex; flex-direction:column; gap:5px; min-width:180px; }
+  .today-label { font-size:12.5px; font-weight:600; color:rgba(255,255,255,.75); }
   .today-label .today-date { font-weight:500; color:rgba(255,255,255,.55); }
-  .today-value { font-size:clamp(28px,5vw,36px); font-weight:700; }
+  .today-value { font-size:clamp(26px,9vw,32px); font-weight:700; }
   .today-value .unit { font-size:.55em; font-weight:600; margin-left:2px; color:rgba(255,255,255,.85); }
-  .today-sub { font-size:13px; color:rgba(255,255,255,.7); }
-  .today-deltas { display:flex; gap:10px; flex-wrap:wrap; }
-  .delta-card { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:10px 16px; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:108px; }
-  .delta-label { font-size:11px; color:rgba(255,255,255,.65); font-weight:600; white-space:nowrap; }
-  .delta-value { font-size:16px; font-weight:700; }
+  .today-sub { font-size:12.5px; color:rgba(255,255,255,.7); }
+  .today-deltas { display:flex; gap:8px; flex-wrap:wrap; }
+  .delta-card { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:10px; padding:8px 14px; display:flex; flex-direction:column; align-items:center; gap:3px; min-width:96px; flex:1; }
+  .delta-label { font-size:10.5px; color:rgba(255,255,255,.65); font-weight:600; white-space:nowrap; }
+  .delta-value { font-size:15px; font-weight:700; }
   .delta-value.down { color:#ff9d8a; } .delta-value.up { color:#7de8a8; } .delta-value.flat { color:rgba(255,255,255,.75); }
-  .today-split { display:flex; flex-direction:column; gap:10px; }
-  .split-legend { display:flex; gap:10px; flex-wrap:wrap; }
-  .split-item { display:flex; align-items:center; gap:8px; flex:1; min-width:220px; background:rgba(111,168,234,.16); border:1px solid rgba(111,168,234,.4); border-radius:10px; padding:10px 14px; font-size:14px; color:#fff; }
+  .today-split { display:flex; flex-direction:column; gap:9px; }
+  .split-legend { display:flex; gap:8px; flex-wrap:wrap; }
+  .split-item { display:flex; align-items:center; gap:7px; flex:1; min-width:150px; background:rgba(111,168,234,.16); border:1px solid rgba(111,168,234,.4); border-radius:10px; padding:9px 12px; font-size:13px; color:#fff; }
   .split-item.market { background:rgba(255,171,122,.16); border-color:rgba(255,171,122,.45); }
-  .dot { width:10px; height:10px; border-radius:50%; flex:none; }
+  .dot { width:9px; height:9px; border-radius:50%; flex:none; }
   .dot.hq { background:#6fa8ea; } .dot.market { background:#ffab7a; }
-  .split-item b { font-weight:800; margin-left:auto; font-size:16px; }
-  .split-bar { height:8px; border-radius:4px; background:rgba(255,255,255,.14); overflow:hidden; display:flex; }
+  .split-item b { font-weight:800; margin-left:auto; font-size:14.5px; }
+  .split-bar { height:7px; border-radius:4px; background:rgba(255,255,255,.14); overflow:hidden; display:flex; }
   .split-bar-hq { height:100%; background:#6fa8ea; } .split-bar-mk { height:100%; background:#ffab7a; }
-  .panels { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .panels > * { min-width:0; }
-  @media (max-width:560px) { .panels { grid-template-columns:1fr; } .twocol { grid-template-columns:1fr; } }
-  .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px 18px 18px; display:flex; flex-direction:column; gap:14px; }
-  .panel-title { font-size:13.5px; font-weight:600; display:flex; align-items:center; gap:7px; }
-  .bars { display:flex; flex-direction:column; gap:12px; }
+  .panels { display:flex; flex-direction:column; gap:12px; }
+  .panel { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 14px 16px; display:flex; flex-direction:column; gap:12px; }
+  .panel-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; }
+  .bars { display:flex; flex-direction:column; gap:11px; }
   .bar-row { display:flex; flex-direction:column; gap:5px; }
-  .bar-meta { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:13.5px; }
+  .bar-meta { display:flex; justify-content:space-between; align-items:baseline; gap:10px; font-size:13px; }
   .bar-name { font-weight:600; color:var(--ink); }
   .bar-value { color:var(--ink-2); white-space:nowrap; }
-  .bar-track { height:10px; background:var(--gridline); border-radius:5px; overflow:hidden; }
-  .bar-fill { height:100%; border-radius:5px 4px 4px 5px; background:var(--hq); }
+  .bar-track { height:9px; background:var(--gridline); border-radius:5px; overflow:hidden; }
+  .bar-fill { height:100%; border-radius:5px 4px 4px 5px; background:var(--hq); transition:width .2s ease; }
   .panel.market .bar-fill { background:var(--market); }
-  .empty-state { padding:16px; color:var(--ink-3); font-size:13.5px; text-align:center; border:1px dashed var(--border); border-radius:8px; }
-  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:14px 16px 16px; overflow-x:auto; }
-  table.mtable { width:100%; border-collapse:collapse; font-size:13px; white-space:nowrap; }
-  table.mtable th, table.mtable td { padding:7px 10px; text-align:right; border-bottom:1px solid var(--gridline); }
+  .empty-state { padding:14px; color:var(--ink-3); font-size:13px; text-align:center; border:1px dashed var(--border); border-radius:8px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 12px 14px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  table.mtable { width:100%; border-collapse:collapse; font-size:12.5px; white-space:nowrap; }
+  table.mtable th, table.mtable td { padding:6px 8px; text-align:right; border-bottom:1px solid var(--gridline); }
   table.mtable th:first-child, table.mtable td:first-child { text-align:left; }
-  table.mtable th { color:var(--ink-3); font-weight:600; font-size:11.5px; text-transform:uppercase; }
-  .twocol { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  table.mtable th { color:var(--ink-3); font-weight:600; font-size:10.5px; text-transform:uppercase; }
+  .twocol { display:flex; flex-direction:column; gap:12px; }
   .ranklist { display:flex; flex-direction:column; gap:0; }
-  .rank-row { display:flex; align-items:center; gap:12px; padding:10px 4px; border-bottom:1px solid var(--gridline); }
+  .rank-row { display:flex; align-items:center; gap:10px; padding:9px 2px; border-bottom:1px solid var(--gridline); }
   .rank-row:last-child { border-bottom:none; }
-  .rank-num { flex:none; width:22px; height:22px; border-radius:50%; background:var(--gridline); color:var(--ink-2); font-size:11.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+  .rank-num { flex:none; width:20px; height:20px; border-radius:50%; background:var(--gridline); color:var(--ink-2); font-size:10.5px; font-weight:700; display:flex; align-items:center; justify-content:center; }
   .rank-row:nth-child(1) .rank-num { background:var(--hq); color:#fff; }
   .rank-row:nth-child(2) .rank-num { background:var(--ink-3); color:#fff; }
   .rank-row:nth-child(3) .rank-num { background:#c8a24a; color:#fff; }
   .rank-body { flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
-  .rank-title { font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .rank-sub { font-size:12px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rank-title { font-size:13px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rank-sub { font-size:11.5px; color:var(--ink-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .rank-agent { font-weight:500; color:var(--ink-3); font-size:.82em; }
-  .rank-value { flex:none; font-size:14px; font-weight:700; }
-  .foot { border-top:1px solid var(--border); padding-top:14px; display:flex; flex-direction:column; gap:4px; font-size:12.5px; color:var(--ink-3); }
+  .rank-value { flex:none; font-size:13.5px; font-weight:700; }
+  .foot { border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink-3); }
   .foot strong { color:var(--ink-2); font-weight:600; }
-  .badge { display:inline-block; font-size:11px; font-weight:700; color:#fff; background:var(--hq); border-radius:5px; padding:2px 8px; letter-spacing:.02em; }
+  .badge { display:inline-block; font-size:10.5px; font-weight:700; color:#fff; background:var(--hq); border-radius:5px; padding:2px 7px; letter-spacing:.02em; white-space:nowrap; }
+  @media (min-width:640px) {
+    .twocol { display:grid; grid-template-columns:1fr 1fr; }
+    .panels { display:grid; grid-template-columns:1fr 1fr; }
+  }
 </style></head><body><div class="page">
 <div class="head">
 <div class="eyebrow">HANASM · 공개 리포트</div>
 <h1>하나사인몰 오늘 매출</h1>
-<div class="asof"><strong id="asof-time">09/18 13:57 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div>
+<div class="asof"><strong id="asof-time">09/18 14:09 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div>
+</div>
+<div class="toolbar">
+<button class="btn primary" id="btn-sync" type="button">🔄 지금 동기화</button>
+<span class="toolbar-status" id="toolbar-status"></span>
 </div>
 <div class="today-card">
 <div class="today-card-top">
 <div class="today-main">
-<div class="today-label">오늘 총매출 <span class="today-date">· 2026.9.18(금)</span></div>
-<div class="today-value"><span>12,138,260</span><span class="unit">원</span></div>
-<div class="today-sub">총 70건 · 건당 173,404원 · 제외 8건</div>
+<div class="today-label">오늘 총매출 <span class="today-date" id="today-date">· 2026.9.18(금)</span></div>
+<div class="today-value"><span id="tile-total-value">12,303,020</span><span class="unit">원</span></div>
+<div class="today-sub" id="tile-total-sub">총 72건 · 건당 170,875원 · 제외 8건</div>
 </div>
 <div class="today-deltas">
-<div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value up">▲5.8%</div></div>
-<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down">▼12.5%</div></div>
+<div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value up" id="delta-amt">▲7.2%</div></div>
+<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down" id="delta-cnt">▼10.0%</div></div>
 </div>
 </div>
 <div class="today-split">
 <div class="split-legend">
-<span class="split-item hq"><span class="dot hq"></span>본사 <b>8,064,780원 · 25건 · 66%</b></span>
-<span class="split-item market"><span class="dot market"></span>오픈마켓 <b>4,073,480원 · 46건 · 34%</b></span>
+<span class="split-item hq"><span class="dot hq"></span>본사 <b id="split-hq">8,229,540원 · 27건 · 67%</b></span>
+<span class="split-item market"><span class="dot market"></span>오픈마켓 <b id="split-mk">4,073,480원 · 46건 · 33%</b></span>
 </div>
-<div class="split-bar"><div class="split-bar-hq" style="width:66.4%"></div><div class="split-bar-mk" style="width:33.6%"></div></div>
+<div class="split-bar"><div class="split-bar-hq" id="split-bar-hq" style="width:66.9%"></div><div class="split-bar-mk" id="split-bar-mk" style="width:33.1%"></div></div>
 </div>
 </div>
 <div class="twocol">
 <section>
 <h2 class="sec">⭐ 오늘 매출 TOP5</h2>
-<div class="card"><div class="ranklist"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의 <span class="rank-agent">· 민주</span></div><div class="rank-sub">패드형-주차스티커(럭셔리-골드)-2,000매 [50*70]</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의 <span class="rank-agent">· 영호·현정</span></div><div class="rank-sub">[1-1게이트 -&gt;]포맥스3T+UV인쇄 [450*600] 외 8건</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장 <span class="rank-agent">· 태경·현주</span></div><div class="rank-sub">[주문제작]caravan스티커(2,3,4,6,7,9,14,22,23,25,26,27,28,29,30,31,32,53,54,55,56번-각1매씩 / 24번 2장)-강접화이트시트스티커 [790*130mm] 외 2건</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님 <span class="rank-agent">· 정란</span></div><div class="rank-sub">[문구변경]비상대피로(EXIT)-이동동선유동스티커선형(화이트시트+미끄럼방지스티커)-파랑 [100*800] 20개 / 빨간 20개 / 초록 30개</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영 <span class="rank-agent">· 하나몰</span></div><div class="rank-sub">소형 A형 입간판 금연 문구 안내문 공공장소 흡연금지 과태료부과 경고문</div></div><div class="rank-value">738,000원</div></div></div></div>
+<div class="card"><div class="ranklist" id="today-top5"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의 <span class="rank-agent">· 민주</span></div><div class="rank-sub">패드형-주차스티커(럭셔리-골드)-2,000매 [50*70]</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의 <span class="rank-agent">· 영호·현정</span></div><div class="rank-sub">[1-1게이트 -&gt;]포맥스3T+UV인쇄 [450*600] 외 8건</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장 <span class="rank-agent">· 태경·현주</span></div><div class="rank-sub">[주문제작]caravan스티커(2,3,4,6,7,9,14,22,23,25,26,27,28,29,30,31,32,53,54,55,56번-각1매씩 / 24번 2장)-강접화이트시트스티커 [790*130mm] 외 2건</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님 <span class="rank-agent">· 정란</span></div><div class="rank-sub">[문구변경]비상대피로(EXIT)-이동동선유동스티커선형(화이트시트+미끄럼방지스티커)-파랑 [100*800] 20개 / 빨간 20개 / 초록 30개</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영 <span class="rank-agent">· 하나몰</span></div><div class="rank-sub">소형 A형 입간판 금연 문구 안내문 공공장소 흡연금지 과태료부과 경고문</div></div><div class="rank-value">738,000원</div></div></div></div>
 </section>
 <section>
 <h2 class="sec">📈 오늘 거래처별 매출</h2>
-<div class="card"><div class="ranklist"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영</div></div><div class="rank-value">738,000원</div></div><div class="rank-row"><div class="rank-num">6</div><div class="rank-body"><div class="rank-title">아토/서경덕</div></div><div class="rank-value">511,500원</div></div><div class="rank-row"><div class="rank-num">7</div><div class="rank-body"><div class="rank-title">주식회사 탑애드</div></div><div class="rank-value">421,800원</div></div><div class="rank-row"><div class="rank-num">8</div><div class="rank-body"><div class="rank-title">한스코퍼레이션(봉담자이라젠느)</div></div><div class="rank-value">378,200원</div></div><div class="rank-row"><div class="rank-num">9</div><div class="rank-body"><div class="rank-title">더샵인천스카이타워1단지입주자대표회의</div></div><div class="rank-value">267,000원</div></div><div class="rank-row"><div class="rank-num">10</div><div class="rank-body"><div class="rank-title">안희현</div></div><div class="rank-value">255,000원</div></div><div class="rank-row"><div class="rank-num">11</div><div class="rank-body"><div class="rank-title">퍼슨헬스케어</div></div><div class="rank-value">243,500원</div></div><div class="rank-row"><div class="rank-num">12</div><div class="rank-body"><div class="rank-title">배정성</div></div><div class="rank-value">232,800원</div></div></div><div class="sec-note">전체 68건 중 상위 12건 표시</div></div>
+<div class="card"><div class="ranklist" id="week-list"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영</div></div><div class="rank-value">738,000원</div></div><div class="rank-row"><div class="rank-num">6</div><div class="rank-body"><div class="rank-title">아토/서경덕</div></div><div class="rank-value">511,500원</div></div><div class="rank-row"><div class="rank-num">7</div><div class="rank-body"><div class="rank-title">주식회사 탑애드</div></div><div class="rank-value">421,800원</div></div><div class="rank-row"><div class="rank-num">8</div><div class="rank-body"><div class="rank-title">한스코퍼레이션(봉담자이라젠느)</div></div><div class="rank-value">378,200원</div></div><div class="rank-row"><div class="rank-num">9</div><div class="rank-body"><div class="rank-title">더샵인천스카이타워1단지입주자대표회의</div></div><div class="rank-value">267,000원</div></div><div class="rank-row"><div class="rank-num">10</div><div class="rank-body"><div class="rank-title">안희현</div></div><div class="rank-value">255,000원</div></div><div class="rank-row"><div class="rank-num">11</div><div class="rank-body"><div class="rank-title">퍼슨헬스케어</div></div><div class="rank-value">243,500원</div></div><div class="rank-row"><div class="rank-num">12</div><div class="rank-body"><div class="rank-title">배정성</div></div><div class="rank-value">232,800원</div></div></div><div class="sec-note" id="week-list-note">전체 70건 중 상위 12건 표시</div></div>
 </section>
 </div>
 <div class="panels">
 <div class="panel hq">
 <div class="panel-title"><span class="dot hq"></span>본사 진행자별</div>
-<div class="bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">민주</span><span class="bar-value">2,965,900원 · 9건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">영호·현정</span><span class="bar-value">2,017,900원 · 5건</span></div><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">정란</span><span class="bar-value">1,928,000원 · 6건</span></div><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">태경·현주</span><span class="bar-value">1,152,980원 · 5건</span></div><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div></div></div>
+<div class="bars" id="hq-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">민주</span><span class="bar-value">2,965,900원 · 9건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">정란</span><span class="bar-value">2,060,160원 · 7건</span></div><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">영호·현정</span><span class="bar-value">2,050,500원 · 6건</span></div><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">태경·현주</span><span class="bar-value">1,152,980원 · 5건</span></div><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div></div></div>
 </div>
 <div class="panel market">
 <div class="panel-title"><span class="dot market"></span>오픈마켓 채널별 <span class="sec-note">건수 기준</span></div>
-<div class="bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">하나몰</span><span class="bar-value">18건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">고도몰5</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">쿠팡(신)</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">G마켓</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">신규몰</span><span class="bar-value">4건</span></div><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">로켓출력공장</span><span class="bar-value">2건</span></div><div class="bar-track"><div class="bar-fill" style="width:11%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">11번가</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">더바른사인</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div></div>
+<div class="bars" id="mk-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">하나몰</span><span class="bar-value">18건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">고도몰5</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">쿠팡(신)</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">G마켓</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">신규몰</span><span class="bar-value">4건</span></div><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">로켓출력공장</span><span class="bar-value">2건</span></div><div class="bar-track"><div class="bar-fill" style="width:11%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">11번가</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">더바른사인</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div></div>
 </div>
 </div>
 <section>
 <h2 class="sec">🏷️ 품목 카테고리 TOP <span class="sec-note">오늘 · 건수 기준(본사+오픈마켓)</span></h2>
-<div class="card"><div class="bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">스티커</span><span class="bar-value">24건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">입간판</span><span class="bar-value">17건</span></div><div class="bar-track"><div class="bar-fill" style="width:71%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">현수막/배너</span><span class="bar-value">10건</span></div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">기타</span><span class="bar-value">10건</span></div><div class="bar-track"><div class="bar-fill" style="width:42%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">게시판</span><span class="bar-value">9건</span></div><div class="bar-track"><div class="bar-fill" style="width:38%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">안내판·표지판</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--accent)"></div></div></div></div></div>
+<div class="card"><div class="bars" id="cat-top-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">스티커</span><span class="bar-value">25건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">입간판</span><span class="bar-value">17건</span></div><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">현수막/배너</span><span class="bar-value">11건</span></div><div class="bar-track"><div class="bar-fill" style="width:44%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">기타</span><span class="bar-value">10건</span></div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">게시판</span><span class="bar-value">9건</span></div><div class="bar-track"><div class="bar-fill" style="width:36%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">안내판·표지판</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:32%;background:var(--accent)"></div></div></div></div></div>
 </section>
 <section>
 <h2 class="sec">📦 품목 카테고리별 합계 <span class="sec-note">오늘</span></h2>
 <div class="twocol">
-<div class="card"><table class="mtable"><thead><tr><th>본사(32건)</th><th>건수</th></tr></thead><tbody><tr><td>스티커</td><td>12건</td></tr><tr><td>기타</td><td>8건</td></tr><tr><td>현수막/배너</td><td>5건</td></tr><tr><td>입간판</td><td>4건</td></tr><tr><td>게시판</td><td>2건</td></tr><tr><td>안내판·표지판</td><td>1건</td></tr></tbody></table></div>
-<div class="card"><table class="mtable"><thead><tr><th>오픈마켓(46건)</th><th>건수</th></tr></thead><tbody><tr><td>입간판</td><td>13건</td></tr><tr><td>스티커</td><td>12건</td></tr><tr><td>안내판·표지판</td><td>7건</td></tr><tr><td>게시판</td><td>7건</td></tr><tr><td>현수막/배너</td><td>5건</td></tr><tr><td>기타</td><td>2건</td></tr></tbody></table></div>
+<div class="card"><table class="mtable"><thead><tr><th id="cat-hq-title">본사(34건)</th><th>건수</th></tr></thead><tbody id="cat-hq-table"><tr><td>스티커</td><td>13건</td></tr><tr><td>기타</td><td>8건</td></tr><tr><td>현수막/배너</td><td>6건</td></tr><tr><td>입간판</td><td>4건</td></tr><tr><td>게시판</td><td>2건</td></tr><tr><td>안내판·표지판</td><td>1건</td></tr></tbody></table></div>
+<div class="card"><table class="mtable"><thead><tr><th id="cat-mk-title">오픈마켓(46건)</th><th>건수</th></tr></thead><tbody id="cat-mk-table"><tr><td>입간판</td><td>13건</td></tr><tr><td>스티커</td><td>12건</td></tr><tr><td>안내판·표지판</td><td>7건</td></tr><tr><td>게시판</td><td>7건</td></tr><tr><td>현수막/배너</td><td>5건</td></tr><tr><td>기타</td><td>2건</td></tr></tbody></table></div>
 </div>
 </section>
 <div class="foot">
-<div><strong>미정·취소 등 제외 8건 (오픈마켓 금액칸 미기재 1건 포함)</strong></div>
-<div>이 페이지는 <strong>로그인 없이 누구나</strong> 볼 수 있는 읽기 전용 공개 리포트입니다. 평일 9~20시 매시간 자동으로 최신 수치로 갱신됩니다.</div>
+<div id="foot-excluded"><strong>미정·취소 등 제외 8건 (오픈마켓 금액칸 미기재 1건 포함)</strong></div>
+<div>이 페이지는 <strong>로그인 없이 누구나</strong> 볼 수 있는 읽기 전용 공개 리포트입니다. 평일 9~19시 매시간 자동 갱신되고, <strong>🔄 지금 동기화</strong> 버튼으로 그 사이에도 내 화면만 즉시 새로고침할 수 있습니다(서버 파일은 다음 정시에 갱신).</div>
 <div>월별/주간 누적, 재구매 이력 등은 이 페이지에 포함되지 않습니다 (오늘 매출 전용).</div>
 </div>
-</div></body></html>
+</div>
+<script>
+(function () {
+  var STAFF = ['정란','태경','현주','민주','영호','현정','글이','흥구'];
+  var SYNC_ENDPOINT = "";
+
+  function isHQ(agent) {
+    var a = (agent || '').trim();
+    if (!a) return null;
+    if (a.indexOf('사인몰') === 0) return true;
+    for (var i = 0; i < STAFF.length; i++) { if (a.indexOf(STAFF[i]) !== -1) return true; }
+    return false;
+  }
+  function hqDisplayName(agent) {
+    var found = [];
+    for (var i = 0; i < STAFF.length; i++) { if (agent.indexOf(STAFF[i]) !== -1) found.push(STAFF[i]); }
+    return found.length ? found.join('·') : '사인몰';
+  }
+  function parseAmount(s) {
+    s = (s || '').trim().replace(/,/g, '');
+    if (s === '' || s === '-' || s === '미정' || s === '취소') return null;
+    var n = parseInt(s, 10);
+    return isNaN(n) ? null : n;
+  }
+  function categorize(item) {
+    var t = item || '';
+    if (t.indexOf('피난') !== -1) return '피난안내도';
+    if (t.indexOf('게시판') !== -1) return '게시판';
+    if (t.indexOf('입간판') !== -1 || t.indexOf('간판') !== -1 || t.indexOf('오뚜기') !== -1 || t.indexOf('스탠드') !== -1) return '입간판';
+    if (t.indexOf('현수막') !== -1 || t.indexOf('배너') !== -1 || t.indexOf('플랜카드') !== -1 || t.indexOf('플래카드') !== -1) return '현수막/배너';
+    if (t.indexOf('스티커') !== -1 || t.indexOf('스텐실') !== -1) return '스티커';
+    if (t.indexOf('안내판') !== -1 || t.indexOf('표지판') !== -1) return '안내판·표지판';
+    return '기타';
+  }
+  function parseCSV(text) {
+    var rows = [], row = [], field = '', inQuotes = false;
+    for (var i = 0; i < text.length; i++) {
+      var c = text[i];
+      if (inQuotes) {
+        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
+        else field += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === ',') { row.push(field); field = ''; }
+        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+        else if (c === '\r') { }
+        else field += c;
+      }
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+  function fmt(n) { return n.toLocaleString('ko-KR'); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function agentDisplay(agent) { return isHQ(agent) ? hqDisplayName(agent) : (agent || ''); }
+  function setStatus(msg, isErr) {
+    var el = document.getElementById('toolbar-status');
+    el.textContent = msg;
+    el.style.color = isErr ? 'var(--bad)' : 'var(--ink-3)';
+  }
+  function buildBarsHTML(items, opts) {
+    if (!items.length) return '<div class="empty-state">데이터 없음</div>';
+    var max = Math.max.apply(null, items.map(function (it) { return it.value; }));
+    return items.map(function (it) {
+      var pct = max ? Math.max(4, Math.round((it.value / max) * 100)) : 0;
+      var valueLabel = opts.unit === '건' ? (it.value + '건') : (fmt(it.value) + '원' + (opts.showCount ? ' · ' + it.count + '건' : ''));
+      var fillStyle = 'width:' + pct + '%' + (opts.accent ? ';background:var(--accent)' : '');
+      return '<div class="bar-row"><div class="bar-meta"><span class="bar-name">' + esc(it.name) + '</span><span class="bar-value">' + valueLabel + '</span></div><div class="bar-track"><div class="bar-fill" style="' + fillStyle + '"></div></div></div>';
+    }).join('');
+  }
+  function deltaHTML(newVal, prevVal) {
+    if (!prevVal) return '-';
+    var pct = ((newVal - prevVal) / prevVal) * 100;
+    var arrow = pct > 0.05 ? '▲' : (pct < -0.05 ? '▼' : '-');
+    return arrow + Math.abs(pct).toFixed(1) + '%';
+  }
+  function deltaClass(newVal, prevVal) {
+    var pct = prevVal ? ((newVal - prevVal) / prevVal) * 100 : 0;
+    return pct > 0.05 ? 'up' : (pct < -0.05 ? 'down' : 'flat');
+  }
+  var PREV_BUSINESS_DAY = { amt: 11474310, cnt: 80 };
+
+  function renderTop5(rows) {
+    var sorted = rows.slice().sort(function (a, b) { return b.amt - a.amt; }).slice(0, 5);
+    document.getElementById('today-top5').innerHTML = sorted.map(function (r, idx) {
+      var agentLabel = agentDisplay(r.agent);
+      return '<div class="rank-row"><div class="rank-num">' + (idx + 1) + '</div><div class="rank-body"><div class="rank-title">' + esc(r.title || '(상호미기재)') + (agentLabel ? ' <span class="rank-agent">· ' + esc(agentLabel) + '</span>' : '') + '</div><div class="rank-sub">' + esc(r.item || '') + '</div></div><div class="rank-value">' + fmt(r.amt) + '원</div></div>';
+    }).join('');
+  }
+  function renderWeekList(rows) {
+    var byVendor = {};
+    rows.forEach(function (r) {
+      var key = r.title || '(상호미기재)';
+      if (!byVendor[key]) byVendor[key] = { title: key, amt: 0 };
+      byVendor[key].amt += r.amt;
+    });
+    var list = Object.keys(byVendor).map(function (k) { return byVendor[k]; }).sort(function (a, b) { return b.amt - a.amt; });
+    var shown = list.slice(0, 12);
+    document.getElementById('week-list').innerHTML = shown.map(function (v, idx) {
+      return '<div class="rank-row"><div class="rank-num">' + (idx + 1) + '</div><div class="rank-body"><div class="rank-title">' + esc(v.title) + '</div></div><div class="rank-value">' + fmt(v.amt) + '원</div></div>';
+    }).join('');
+    var noteEl = document.getElementById('week-list-note');
+    if (noteEl) noteEl.textContent = list.length > 12 ? ('전체 ' + list.length + '건 중 상위 12건 표시') : '';
+  }
+
+  function applySync(allRows) {
+    var withAgent = allRows.filter(function (r) { return r.agent && r.agent.trim(); });
+    var valid = withAgent.filter(function (r) { return r.amt !== null; });
+    var excluded = withAgent.length - valid.length;
+    var hqValid = valid.filter(function (r) { return isHQ(r.agent); });
+    var mkValid = valid.filter(function (r) { return !isHQ(r.agent); });
+    var hqAll = withAgent.filter(function (r) { return isHQ(r.agent); });
+    var mkAll = withAgent.filter(function (r) { return !isHQ(r.agent); });
+    var total = valid.reduce(function (s, r) { return s + r.amt; }, 0);
+    var hqTotal = hqValid.reduce(function (s, r) { return s + r.amt; }, 0);
+    var mkTotal = mkValid.reduce(function (s, r) { return s + r.amt; }, 0);
+    var hqPct = total ? Math.round((hqTotal / total) * 1000) / 10 : 0;
+    var avgPer = valid.length ? Math.round(total / valid.length) : 0;
+    document.getElementById('tile-total-value').textContent = fmt(total);
+    document.getElementById('tile-total-sub').textContent = '총 ' + valid.length + '건 · 건당 ' + fmt(avgPer) + '원 · 제외 ' + excluded + '건';
+    var mkSplitPct = total ? Math.round(1000 - hqPct * 10) / 10 : 0;
+    document.getElementById('split-hq').textContent = fmt(hqTotal) + '원 · ' + hqValid.length + '건 · ' + Math.round(hqPct) + '%';
+    document.getElementById('split-mk').textContent = fmt(mkTotal) + '원 · ' + mkAll.length + '건 · ' + Math.round(mkSplitPct) + '%';
+    document.getElementById('split-bar-hq').style.width = hqPct + '%';
+    document.getElementById('split-bar-mk').style.width = mkSplitPct + '%';
+    var deltaAmtEl = document.getElementById('delta-amt');
+    var deltaCntEl = document.getElementById('delta-cnt');
+    deltaAmtEl.textContent = deltaHTML(total, PREV_BUSINESS_DAY.amt);
+    deltaAmtEl.className = 'delta-value ' + deltaClass(total, PREV_BUSINESS_DAY.amt);
+    deltaCntEl.textContent = deltaHTML(valid.length, PREV_BUSINESS_DAY.cnt);
+    deltaCntEl.className = 'delta-value ' + deltaClass(valid.length, PREV_BUSINESS_DAY.cnt);
+    var byAgent = {};
+    hqValid.forEach(function (r) {
+      var name = hqDisplayName(r.agent);
+      if (!byAgent[name]) byAgent[name] = { name: name, value: 0, count: 0 };
+      byAgent[name].value += r.amt; byAgent[name].count += 1;
+    });
+    var agentList = Object.keys(byAgent).map(function (k) { return byAgent[k]; }).sort(function (a, b) { return b.value - a.value; });
+    document.getElementById('hq-bars').innerHTML = agentList.length ? buildBarsHTML(agentList, { showCount: true }) : '<div class="empty-state">오늘 본사 매출 없음</div>';
+    var byChannel = {};
+    mkAll.forEach(function (r) {
+      var name = r.agent;
+      if (!byChannel[name]) byChannel[name] = { name: name, value: 0 };
+      byChannel[name].value += 1;
+    });
+    var channelList = Object.keys(byChannel).map(function (k) { return byChannel[k]; }).sort(function (a, b) { return b.value - a.value; });
+    document.getElementById('mk-bars').innerHTML = channelList.length ? buildBarsHTML(channelList, { unit: '건' }) : '<div class="empty-state">오늘 오픈마켓 접수 없음</div>';
+    var catCount = {}, catHQ = {}, catMK = {};
+    withAgent.forEach(function (r) {
+      var cat = categorize(r.item);
+      catCount[cat] = (catCount[cat] || 0) + 1;
+      if (isHQ(r.agent)) catHQ[cat] = (catHQ[cat] || 0) + 1; else catMK[cat] = (catMK[cat] || 0) + 1;
+    });
+    var catList = Object.keys(catCount).map(function (k) { return { name: k, value: catCount[k] }; }).sort(function (a, b) { return b.value - a.value; });
+    document.getElementById('cat-top-bars').innerHTML = buildBarsHTML(catList, { unit: '건', accent: true });
+    function tableRows(obj) {
+      return Object.keys(obj).sort(function (a, b) { return obj[b] - obj[a]; }).map(function (k) { return '<tr><td>' + esc(k) + '</td><td>' + obj[k] + '건</td></tr>'; }).join('');
+    }
+    document.getElementById('cat-hq-table').innerHTML = tableRows(catHQ) || '<tr><td colspan="2">데이터 없음</td></tr>';
+    document.getElementById('cat-mk-table').innerHTML = tableRows(catMK) || '<tr><td colspan="2">데이터 없음</td></tr>';
+    document.getElementById('cat-hq-title').textContent = '본사(' + hqAll.length + '건)';
+    document.getElementById('cat-mk-title').textContent = '오픈마켓(' + mkAll.length + '건)';
+    renderTop5(valid);
+    renderWeekList(valid);
+    document.getElementById('foot-excluded').innerHTML = '<strong>미정·취소 등 제외 ' + excluded + '건' + ((mkAll.length - mkValid.length) ? ' (오픈마켓 금액칸 미기재 ' + (mkAll.length - mkValid.length) + '건 포함)' : '') + '</strong>';
+    var now = new Date();
+    var hh = String(now.getHours()).padStart(2, '0');
+    var mm = String(now.getMinutes()).padStart(2, '0');
+    var mo = String(now.getMonth() + 1).padStart(2, '0');
+    var dd = String(now.getDate()).padStart(2, '0');
+    document.getElementById('asof-time').textContent = mo + '/' + dd + ' ' + hh + ':' + mm + ' (지금 내 화면만 갱신)';
+  }
+
+  async function doSync() {
+    var btn = document.getElementById('btn-sync');
+    if (!SYNC_ENDPOINT) { setStatus('동기화 엔드포인트가 아직 설정되지 않았어요.', true); return; }
+    btn.disabled = true;
+    setStatus('동기화 중…');
+    try {
+      var res = await fetch(SYNC_ENDPOINT, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var payload = await res.json();
+      var b64 = payload.content;
+      if (!b64) throw new Error('응답에 파일 내용이 없어요.');
+      var binary = atob(b64);
+      var bytes = new Uint8Array(binary.length);
+      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+      var text = new TextDecoder('utf-8').decode(bytes);
+      var table = parseCSV(text);
+      if (table.length < 2) throw new Error('오늘 데이터가 비어 있어요.');
+      var rows = table.slice(1).map(function (row) {
+        return { agent: row[3] || '', amt: parseAmount(row[17]), title: (row[11] || '').trim(), item: (row[12] || '').trim() };
+      });
+      applySync(rows);
+      setStatus('동기화 완료 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')');
+    } catch (err) {
+      setStatus('동기화 실패: ' + (err && err.message ? err.message : '알 수 없는 오류'), true);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+  document.getElementById('btn-sync').addEventListener('click', doSync);
+})();
+</script>
+</body></html>
