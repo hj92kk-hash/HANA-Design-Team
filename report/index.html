@@ -74,276 +74,116 @@
   .foot { border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:4px; font-size:12px; color:var(--ink-3); }
   .foot strong { color:var(--ink-2); font-weight:600; }
   .badge { display:inline-block; font-size:10.5px; font-weight:700; color:#fff; background:var(--hq); border-radius:5px; padding:2px 7px; letter-spacing:.02em; white-space:nowrap; }
-  @media (min-width:640px) {
-    .twocol { display:grid; grid-template-columns:1fr 1fr; }
-    .panels { display:grid; grid-template-columns:1fr 1fr; }
-  }
+  @media (min-width:640px) { .twocol { display:grid; grid-template-columns:1fr 1fr; } .panels { display:grid; grid-template-columns:1fr 1fr; } }
 </style></head><body><div class="page">
-<div class="head">
-<div class="eyebrow">HANASM · 공개 리포트</div>
-<h1>하나사인몰 오늘 매출</h1>
-<div class="asof"><strong id="asof-time">09/18 14:16 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div>
-</div>
-<div class="toolbar">
-<button class="btn primary" id="btn-sync" type="button">🔄 지금 동기화</button>
-<span class="toolbar-status" id="toolbar-status"></span>
-</div>
-<div class="today-card">
-<div class="today-card-top">
-<div class="today-main">
-<div class="today-label">오늘 총매출 <span class="today-date" id="today-date">· 2026.9.18(금)</span></div>
-<div class="today-value"><span id="tile-total-value">12,303,020</span><span class="unit">원</span></div>
-<div class="today-sub" id="tile-total-sub">총 72건 · 건당 170,875원 · 제외 8건</div>
-</div>
-<div class="today-deltas">
-<div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value up" id="delta-amt">▲7.2%</div></div>
-<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down" id="delta-cnt">▼10.0%</div></div>
-</div>
-</div>
-<div class="today-split">
-<div class="split-legend">
-<span class="split-item hq"><span class="dot hq"></span>본사 <b id="split-hq">8,229,540원 · 27건 · 67%</b></span>
-<span class="split-item market"><span class="dot market"></span>오픈마켓 <b id="split-mk">4,073,480원 · 46건 · 33%</b></span>
-</div>
-<div class="split-bar"><div class="split-bar-hq" id="split-bar-hq" style="width:66.9%"></div><div class="split-bar-mk" id="split-bar-mk" style="width:33.1%"></div></div>
-</div>
-</div>
-<div class="twocol">
-<section>
-<h2 class="sec">⭐ 오늘 매출 TOP5</h2>
-<div class="card"><div class="ranklist" id="today-top5"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의 <span class="rank-agent">· 민주</span></div><div class="rank-sub">패드형-주차스티커(럭셔리-골드)-2,000매 [50*70]</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의 <span class="rank-agent">· 영호·현정</span></div><div class="rank-sub">[1-1게이트 -&gt;]포맥스3T+UV인쇄 [450*600] 외 8건</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장 <span class="rank-agent">· 태경·현주</span></div><div class="rank-sub">[주문제작]caravan스티커(2,3,4,6,7,9,14,22,23,25,26,27,28,29,30,31,32,53,54,55,56번-각1매씩 / 24번 2장)-강접화이트시트스티커 [790*130mm] 외 2건</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님 <span class="rank-agent">· 정란</span></div><div class="rank-sub">[문구변경]비상대피로(EXIT)-이동동선유동스티커선형(화이트시트+미끄럼방지스티커)-파랑 [100*800] 20개 / 빨간 20개 / 초록 30개</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영 <span class="rank-agent">· 하나몰</span></div><div class="rank-sub">소형 A형 입간판 금연 문구 안내문 공공장소 흡연금지 과태료부과 경고문</div></div><div class="rank-value">738,000원</div></div></div></div>
-</section>
-<section>
-<h2 class="sec">📈 오늘 거래처별 매출</h2>
-<div class="card"><div class="ranklist" id="week-list"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">팔판마을4단지푸르지오입주자대표회의</div></div><div class="rank-value">1,518,000원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">메이플자이입주자대표회의</div></div><div class="rank-value">1,214,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">주식회사북한산캠핑장</div></div><div class="rank-value">904,860원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">한국과학기술원/김희종 담당자님</div></div><div class="rank-value">872,000원</div></div><div class="rank-row"><div class="rank-num">5</div><div class="rank-body"><div class="rank-title">민봉기/김우영</div></div><div class="rank-value">738,000원</div></div><div class="rank-row"><div class="rank-num">6</div><div class="rank-body"><div class="rank-title">아토/서경덕</div></div><div class="rank-value">511,500원</div></div><div class="rank-row"><div class="rank-num">7</div><div class="rank-body"><div class="rank-title">주식회사 탑애드</div></div><div class="rank-value">421,800원</div></div><div class="rank-row"><div class="rank-num">8</div><div class="rank-body"><div class="rank-title">한스코퍼레이션(봉담자이라젠느)</div></div><div class="rank-value">378,200원</div></div><div class="rank-row"><div class="rank-num">9</div><div class="rank-body"><div class="rank-title">더샵인천스카이타워1단지입주자대표회의</div></div><div class="rank-value">267,000원</div></div><div class="rank-row"><div class="rank-num">10</div><div class="rank-body"><div class="rank-title">안희현</div></div><div class="rank-value">255,000원</div></div><div class="rank-row"><div class="rank-num">11</div><div class="rank-body"><div class="rank-title">퍼슨헬스케어</div></div><div class="rank-value">243,500원</div></div><div class="rank-row"><div class="rank-num">12</div><div class="rank-body"><div class="rank-title">배정성</div></div><div class="rank-value">232,800원</div></div></div><div class="sec-note" id="week-list-note">전체 70건 중 상위 12건 표시</div></div>
-</section>
-</div>
-<div class="panels">
-<div class="panel hq">
-<div class="panel-title"><span class="dot hq"></span>본사 진행자별</div>
-<div class="bars" id="hq-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">민주</span><span class="bar-value">2,965,900원 · 9건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">정란</span><span class="bar-value">2,060,160원 · 7건</span></div><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">영호·현정</span><span class="bar-value">2,050,500원 · 6건</span></div><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">태경·현주</span><span class="bar-value">1,152,980원 · 5건</span></div><div class="bar-track"><div class="bar-fill" style="width:39%"></div></div></div></div>
-</div>
-<div class="panel market">
-<div class="panel-title"><span class="dot market"></span>오픈마켓 채널별 <span class="sec-note">건수 기준</span></div>
-<div class="bars" id="mk-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">하나몰</span><span class="bar-value">18건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">고도몰5</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:44%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">쿠팡(신)</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">G마켓</span><span class="bar-value">6건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">신규몰</span><span class="bar-value">4건</span></div><div class="bar-track"><div class="bar-fill" style="width:22%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">로켓출력공장</span><span class="bar-value">2건</span></div><div class="bar-track"><div class="bar-fill" style="width:11%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">11번가</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">더바른사인</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:6%"></div></div></div></div>
-</div>
-</div>
-<section>
-<h2 class="sec">🏷️ 품목 카테고리 TOP <span class="sec-note">오늘 · 건수 기준(본사+오픈마켓)</span></h2>
-<div class="card"><div class="bars" id="cat-top-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">스티커</span><span class="bar-value">25건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">입간판</span><span class="bar-value">17건</span></div><div class="bar-track"><div class="bar-fill" style="width:68%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">현수막/배너</span><span class="bar-value">11건</span></div><div class="bar-track"><div class="bar-fill" style="width:44%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">기타</span><span class="bar-value">10건</span></div><div class="bar-track"><div class="bar-fill" style="width:40%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">게시판</span><span class="bar-value">9건</span></div><div class="bar-track"><div class="bar-fill" style="width:36%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">안내판·표지판</span><span class="bar-value">8건</span></div><div class="bar-track"><div class="bar-fill" style="width:32%;background:var(--accent)"></div></div></div></div></div>
-</section>
-<section>
-<h2 class="sec">📦 품목 카테고리별 합계 <span class="sec-note">오늘</span></h2>
-<div class="twocol">
-<div class="card"><table class="mtable"><thead><tr><th id="cat-hq-title">본사(34건)</th><th>건수</th></tr></thead><tbody id="cat-hq-table"><tr><td>스티커</td><td>13건</td></tr><tr><td>기타</td><td>8건</td></tr><tr><td>현수막/배너</td><td>6건</td></tr><tr><td>입간판</td><td>4건</td></tr><tr><td>게시판</td><td>2건</td></tr><tr><td>안내판·표지판</td><td>1건</td></tr></tbody></table></div>
-<div class="card"><table class="mtable"><thead><tr><th id="cat-mk-title">오픈마켓(46건)</th><th>건수</th></tr></thead><tbody id="cat-mk-table"><tr><td>입간판</td><td>13건</td></tr><tr><td>스티커</td><td>12건</td></tr><tr><td>안내판·표지판</td><td>7건</td></tr><tr><td>게시판</td><td>7건</td></tr><tr><td>현수막/배너</td><td>5건</td></tr><tr><td>기타</td><td>2건</td></tr></tbody></table></div>
-</div>
-</section>
-<div class="foot">
-<div id="foot-excluded"><strong>미정·취소 등 제외 8건 (오픈마켓 금액칸 미기재 1건 포함)</strong></div>
-<div>이 페이지는 <strong>로그인 없이 누구나</strong> 볼 수 있는 읽기 전용 공개 리포트입니다. 평일 9~19시 매시간 자동 갱신되고, <strong>🔄 지금 동기화</strong> 버튼으로 그 사이에도 내 화면만 즉시 새로고침할 수 있습니다(서버 파일은 다음 정시에 갱신).</div>
-<div>월별/주간 누적, 재구매 이력 등은 이 페이지에 포함되지 않습니다 (오늘 매출 전용).</div>
-</div>
+<div class="head"><div class="eyebrow">HANASM · 공개 리포트</div><h1>하나사인몰 오늘 매출</h1>
+<div class="asof"><strong id="asof-time">09/22 09:06 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div></div>
+<div class="toolbar"><button class="btn primary" id="btn-sync" type="button">🔄 지금 동기화</button><span class="toolbar-status" id="toolbar-status"></span></div>
+<div class="today-card"><div class="today-card-top"><div class="today-main">
+<div class="today-label">오늘 총매출 <span class="today-date" id="today-date">· 2026.9.22(화)</span></div>
+<div class="today-value"><span id="tile-total-value">710,570</span><span class="unit">원</span></div>
+<div class="today-sub" id="tile-total-sub">총 4건 · 건당 177,642원 · 제외 1건</div></div>
+<div class="today-deltas"><div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value down" id="delta-amt">▼93.8%</div></div>
+<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down" id="delta-cnt">▼95.0%</div></div></div></div>
+<div class="today-split"><div class="split-legend">
+<span class="split-item hq"><span class="dot hq"></span>본사 <b id="split-hq">710,570원 · 4건 · 100%</b></span>
+<span class="split-item market"><span class="dot market"></span>오픈마켓 <b id="split-mk">0원 · 0건 · 0%</b></span></div>
+<div class="split-bar"><div class="split-bar-hq" id="split-bar-hq" style="width:100.0%"></div><div class="split-bar-mk" id="split-bar-mk" style="width:0.0%"></div></div></div></div>
+<div class="twocol"><section><h2 class="sec">⭐ 오늘 매출 TOP5</h2><div class="card"><div class="ranklist" id="today-top5"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">주식회사인피니티피트니스송파점 <span class="rank-agent">· 태경·현주</span></div><div class="rank-sub">\[주문제작형\]포맥스3T+UV인쇄 \[400mm\] 외 1건</div></div><div class="rank-value">266,570원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">함안소방서 <span class="rank-agent">· 민주</span></div><div class="rank-sub">&amp;#9;\[수목표찰C06-홀더꽂이\]포맥스5T+UV인쇄+분체도장파이프 \[\[형태\]200\*150\*H1000mm\]</div></div><div class="rank-value">192,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">황보연 <span class="rank-agent">· 태경·현주</span></div><div class="rank-sub">리무벌-주차스티커(럭셔리-실버/골드)-100매 - 시안은 102번 또는 126번 \[60파이\] 외 1건</div></div><div class="rank-value">147,000원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">인천광역시배드민턴협회 <span class="rank-agent">· 민주</span></div><div class="rank-sub">&amp;#9;\[기본\]배드민턴대표선수단 현수막(원형나무+끈) \[10000\*1500\]</div></div><div class="rank-value">105,000원</div></div></div></div></section>
+<section><h2 class="sec">📈 오늘 거래처별 매출</h2><div class="card"><div class="ranklist" id="week-list"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">주식회사인피니티피트니스송파점</div></div><div class="rank-value">266,570원</div></div><div class="rank-row"><div class="rank-num">2</div><div class="rank-body"><div class="rank-title">함안소방서</div></div><div class="rank-value">192,000원</div></div><div class="rank-row"><div class="rank-num">3</div><div class="rank-body"><div class="rank-title">황보연</div></div><div class="rank-value">147,000원</div></div><div class="rank-row"><div class="rank-num">4</div><div class="rank-body"><div class="rank-title">인천광역시배드민턴협회</div></div><div class="rank-value">105,000원</div></div></div><div class="sec-note" id="week-list-note"></div></div></section></div>
+<div class="panels"><div class="panel hq"><div class="panel-title"><span class="dot hq"></span>본사 진행자별</div><div class="bars" id="hq-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">태경·현주</span><span class="bar-value">413,570원 · 2건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">민주</span><span class="bar-value">297,000원 · 2건</span></div><div class="bar-track"><div class="bar-fill" style="width:72%"></div></div></div></div></div>
+<div class="panel market"><div class="panel-title"><span class="dot market"></span>오픈마켓 채널별 <span class="sec-note">건수 기준</span></div><div class="bars" id="mk-bars"><div class="empty-state">오늘 오픈마켓 접수 없음</div></div></div></div>
+<section><h2 class="sec">🏷️ 품목 카테고리 TOP <span class="sec-note">오늘 · 건수 기준(본사+오픈마켓)</span></h2><div class="card"><div class="bars" id="cat-top-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">기타</span><span class="bar-value">3건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">현수막/배너</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--accent)"></div></div></div><div class="bar-row"><div class="bar-meta"><span class="bar-name">스티커</span><span class="bar-value">1건</span></div><div class="bar-track"><div class="bar-fill" style="width:33%;background:var(--accent)"></div></div></div></div></div></section>
+<section><h2 class="sec">📦 품목 카테고리별 합계 <span class="sec-note">오늘</span></h2><div class="twocol">
+<div class="card"><table class="mtable"><thead><tr><th id="cat-hq-title">본사(5건)</th><th>건수</th></tr></thead><tbody id="cat-hq-table"><tr><td>기타</td><td>3건</td></tr><tr><td>현수막/배너</td><td>1건</td></tr><tr><td>스티커</td><td>1건</td></tr></tbody></table></div>
+<div class="card"><table class="mtable"><thead><tr><th id="cat-mk-title">오픈마켓(0건)</th><th>건수</th></tr></thead><tbody id="cat-mk-table"><tr><td colspan="2">데이터 없음</td></tr></tbody></table></div></div></section>
+<div class="foot"><div id="foot-excluded"><strong>미정·취소 등 제외 1건</strong></div>
+<div>이 페이지는 로그인 없이 누구나 볼 수 있는 읽기 전용 공개 리포트입니다. 평일 9~19시 매시간 자동 갱신되고, <strong>🔄 지금 동기화</strong> 버튼으로 그 사이에도 내 화면만 즉시 새로고침할 수 있습니다.</div>
+<div>월별/주간 누적, 재구매 이력 등은 이 페이지에 포함되지 않습니다 (오늘 매출 전용).</div></div>
 </div>
 <script>
 (function () {
   var STAFF = ['정란','태경','현주','민주','영호','현정','글이','흥구'];
   var SYNC_ENDPOINT = "https://script.google.com/macros/s/AKfycbxE2toi8jG2cHTLGWibOzw5FSVEvFXE8hb_ceWfPeLH4DEEQmkJNYa8TZJgd9mAo1ll/exec";
-
-  function isHQ(agent) {
-    var a = (agent || '').trim();
-    if (!a) return null;
-    if (a.indexOf('사인몰') === 0) return true;
-    for (var i = 0; i < STAFF.length; i++) { if (a.indexOf(STAFF[i]) !== -1) return true; }
-    return false;
-  }
-  function hqDisplayName(agent) {
-    var found = [];
-    for (var i = 0; i < STAFF.length; i++) { if (agent.indexOf(STAFF[i]) !== -1) found.push(STAFF[i]); }
-    return found.length ? found.join('·') : '사인몰';
-  }
-  function parseAmount(s) {
-    s = (s || '').trim().replace(/,/g, '');
-    if (s === '' || s === '-' || s === '미정' || s === '취소') return null;
-    var n = parseInt(s, 10);
-    return isNaN(n) ? null : n;
-  }
-  function categorize(item) {
-    var t = item || '';
-    if (t.indexOf('피난') !== -1) return '피난안내도';
-    if (t.indexOf('게시판') !== -1) return '게시판';
-    if (t.indexOf('입간판') !== -1 || t.indexOf('간판') !== -1 || t.indexOf('오뚜기') !== -1 || t.indexOf('스탠드') !== -1) return '입간판';
-    if (t.indexOf('현수막') !== -1 || t.indexOf('배너') !== -1 || t.indexOf('플랜카드') !== -1 || t.indexOf('플래카드') !== -1) return '현수막/배너';
-    if (t.indexOf('스티커') !== -1 || t.indexOf('스텐실') !== -1) return '스티커';
-    if (t.indexOf('안내판') !== -1 || t.indexOf('표지판') !== -1) return '안내판·표지판';
-    return '기타';
-  }
-  function parseCSV(text) {
-    var rows = [], row = [], field = '', inQuotes = false;
-    for (var i = 0; i < text.length; i++) {
-      var c = text[i];
-      if (inQuotes) {
-        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else inQuotes = false; }
-        else field += c;
-      } else {
-        if (c === '"') inQuotes = true;
-        else if (c === ',') { row.push(field); field = ''; }
-        else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
-        else if (c === '\r') { }
-        else field += c;
-      }
-    }
-    if (field.length || row.length) { row.push(field); rows.push(row); }
-    return rows;
-  }
+  function isHQ(agent) { var a=(agent||'').trim(); if(!a) return null; if(a.indexOf('사인몰')===0) return true; for(var i=0;i<STAFF.length;i++){ if(a.indexOf(STAFF[i])!==-1) return true; } return false; }
+  function hqDisplayName(agent) { var found=[]; for(var i=0;i<STAFF.length;i++){ if(agent.indexOf(STAFF[i])!==-1) found.push(STAFF[i]); } return found.length?found.join('·'):'사인몰'; }
+  function parseAmount(s) { s=(s||'').trim().replace(/,/g,''); if(s===''||s==='-'||s==='미정'||s==='취소') return null; var n=parseInt(s,10); return isNaN(n)?null:n; }
+  function categorize(item) { var t=item||''; if(t.indexOf('피난')!==-1) return '피난안내도'; if(t.indexOf('게시판')!==-1) return '게시판'; if(t.indexOf('입간판')!==-1||t.indexOf('간판')!==-1||t.indexOf('오뚜기')!==-1||t.indexOf('스탠드')!==-1) return '입간판'; if(t.indexOf('현수막')!==-1||t.indexOf('배너')!==-1||t.indexOf('플랜카드')!==-1||t.indexOf('플래카드')!==-1) return '현수막/배너'; if(t.indexOf('스티커')!==-1||t.indexOf('스텐실')!==-1) return '스티커'; if(t.indexOf('안내판')!==-1||t.indexOf('표지판')!==-1) return '안내판·표지판'; return '기타'; }
+  function parseCSV(text) { var rows=[],row=[],field='',inQuotes=false; for(var i=0;i<text.length;i++){ var c=text[i]; if(inQuotes){ if(c==='"'){ if(text[i+1]==='"'){field+='"';i++;} else inQuotes=false; } else field+=c; } else { if(c==='"') inQuotes=true; else if(c===','){row.push(field);field='';} else if(c==='\n'){row.push(field);rows.push(row);row=[];field='';} else if(c==='\r'){} else field+=c; } } if(field.length||row.length){row.push(field);rows.push(row);} return rows; }
   function fmt(n) { return n.toLocaleString('ko-KR'); }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  function agentDisplay(agent) { return isHQ(agent) ? hqDisplayName(agent) : (agent || ''); }
-  function setStatus(msg, isErr) {
-    var el = document.getElementById('toolbar-status');
-    el.textContent = msg;
-    el.style.color = isErr ? 'var(--bad)' : 'var(--ink-3)';
-  }
-  function buildBarsHTML(items, opts) {
-    if (!items.length) return '<div class="empty-state">데이터 없음</div>';
-    var max = Math.max.apply(null, items.map(function (it) { return it.value; }));
-    return items.map(function (it) {
-      var pct = max ? Math.max(4, Math.round((it.value / max) * 100)) : 0;
-      var valueLabel = opts.unit === '건' ? (it.value + '건') : (fmt(it.value) + '원' + (opts.showCount ? ' · ' + it.count + '건' : ''));
-      var fillStyle = 'width:' + pct + '%' + (opts.accent ? ';background:var(--accent)' : '');
-      return '<div class="bar-row"><div class="bar-meta"><span class="bar-name">' + esc(it.name) + '</span><span class="bar-value">' + valueLabel + '</span></div><div class="bar-track"><div class="bar-fill" style="' + fillStyle + '"></div></div></div>';
-    }).join('');
-  }
-  function deltaHTML(newVal, prevVal) {
-    if (!prevVal) return '-';
-    var pct = ((newVal - prevVal) / prevVal) * 100;
-    var arrow = pct > 0.05 ? '▲' : (pct < -0.05 ? '▼' : '-');
-    return arrow + Math.abs(pct).toFixed(1) + '%';
-  }
-  function deltaClass(newVal, prevVal) {
-    var pct = prevVal ? ((newVal - prevVal) / prevVal) * 100 : 0;
-    return pct > 0.05 ? 'up' : (pct < -0.05 ? 'down' : 'flat');
-  }
+  function esc(s) { return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function agentDisplay(agent) { return isHQ(agent)?hqDisplayName(agent):(agent||''); }
+  function setStatus(msg,isErr) { var el=document.getElementById('toolbar-status'); el.textContent=msg; el.style.color=isErr?'var(--bad)':'var(--ink-3)'; }
+  function buildBarsHTML(items,opts) { if(!items.length) return '<div class="empty-state">데이터 없음</div>'; var max=Math.max.apply(null,items.map(function(it){return it.value;})); return items.map(function(it){ var pct=max?Math.max(4,Math.round((it.value/max)*100)):0; var valueLabel=opts.unit==='건'?(it.value+'건'):(fmt(it.value)+'원'+(opts.showCount?' · '+it.count+'건':'')); var fillStyle='width:'+pct+'%'+(opts.accent?';background:var(--accent)':''); return '<div class="bar-row"><div class="bar-meta"><span class="bar-name">'+esc(it.name)+'</span><span class="bar-value">'+valueLabel+'</span></div><div class="bar-track"><div class="bar-fill" style="'+fillStyle+'"></div></div></div>'; }).join(''); }
+  function deltaHTML(newVal,prevVal) { if(!prevVal) return '-'; var pct=((newVal-prevVal)/prevVal)*100; var arrow=pct>0.05?'▲':(pct<-0.05?'▼':'-'); return arrow+Math.abs(pct).toFixed(1)+'%'; }
+  function deltaClass(newVal,prevVal) { var pct=prevVal?((newVal-prevVal)/prevVal)*100:0; return pct>0.05?'up':(pct<-0.05?'down':'flat'); }
   var PREV_BUSINESS_DAY = { amt: 11474310, cnt: 80 };
-
-  function renderTop5(rows) {
-    var sorted = rows.slice().sort(function (a, b) { return b.amt - a.amt; }).slice(0, 5);
-    document.getElementById('today-top5').innerHTML = sorted.map(function (r, idx) {
-      var agentLabel = agentDisplay(r.agent);
-      return '<div class="rank-row"><div class="rank-num">' + (idx + 1) + '</div><div class="rank-body"><div class="rank-title">' + esc(r.title || '(상호미기재)') + (agentLabel ? ' <span class="rank-agent">· ' + esc(agentLabel) + '</span>' : '') + '</div><div class="rank-sub">' + esc(r.item || '') + '</div></div><div class="rank-value">' + fmt(r.amt) + '원</div></div>';
-    }).join('');
-  }
-  function renderWeekList(rows) {
-    var byVendor = {};
-    rows.forEach(function (r) {
-      var key = r.title || '(상호미기재)';
-      if (!byVendor[key]) byVendor[key] = { title: key, amt: 0 };
-      byVendor[key].amt += r.amt;
-    });
-    var list = Object.keys(byVendor).map(function (k) { return byVendor[k]; }).sort(function (a, b) { return b.amt - a.amt; });
-    var shown = list.slice(0, 12);
-    document.getElementById('week-list').innerHTML = shown.map(function (v, idx) {
-      return '<div class="rank-row"><div class="rank-num">' + (idx + 1) + '</div><div class="rank-body"><div class="rank-title">' + esc(v.title) + '</div></div><div class="rank-value">' + fmt(v.amt) + '원</div></div>';
-    }).join('');
-    var noteEl = document.getElementById('week-list-note');
-    if (noteEl) noteEl.textContent = list.length > 12 ? ('전체 ' + list.length + '건 중 상위 12건 표시') : '';
-  }
-
+  function renderTop5(rows) { var sorted=rows.slice().sort(function(a,b){return b.amt-a.amt;}).slice(0,5); document.getElementById('today-top5').innerHTML=sorted.map(function(r,idx){ var agentLabel=agentDisplay(r.agent); return '<div class="rank-row"><div class="rank-num">'+(idx+1)+'</div><div class="rank-body"><div class="rank-title">'+esc(r.title||'(상호미기재)')+(agentLabel?' <span class="rank-agent">· '+esc(agentLabel)+'</span>':'')+'</div><div class="rank-sub">'+esc(r.item||'')+'</div></div><div class="rank-value">'+fmt(r.amt)+'원</div></div>'; }).join(''); }
+  function renderWeekList(rows) { var byVendor={}; rows.forEach(function(r){ var key=r.title||'(상호미기재)'; if(!byVendor[key]) byVendor[key]={title:key,amt:0}; byVendor[key].amt+=r.amt; }); var list=Object.keys(byVendor).map(function(k){return byVendor[k];}).sort(function(a,b){return b.amt-a.amt;}); var shown=list.slice(0,12); document.getElementById('week-list').innerHTML=shown.map(function(v,idx){ return '<div class="rank-row"><div class="rank-num">'+(idx+1)+'</div><div class="rank-body"><div class="rank-title">'+esc(v.title)+'</div></div><div class="rank-value">'+fmt(v.amt)+'원</div></div>'; }).join(''); var noteEl=document.getElementById('week-list-note'); if(noteEl) noteEl.textContent=list.length>12?('전체 '+list.length+'건 중 상위 12건 표시'):''; }
   function applySync(allRows) {
-    var withAgent = allRows.filter(function (r) { return r.agent && r.agent.trim(); });
-    var valid = withAgent.filter(function (r) { return r.amt !== null; });
-    var excluded = withAgent.length - valid.length;
-    var hqValid = valid.filter(function (r) { return isHQ(r.agent); });
-    var mkValid = valid.filter(function (r) { return !isHQ(r.agent); });
-    var hqAll = withAgent.filter(function (r) { return isHQ(r.agent); });
-    var mkAll = withAgent.filter(function (r) { return !isHQ(r.agent); });
-    var total = valid.reduce(function (s, r) { return s + r.amt; }, 0);
-    var hqTotal = hqValid.reduce(function (s, r) { return s + r.amt; }, 0);
-    var mkTotal = mkValid.reduce(function (s, r) { return s + r.amt; }, 0);
-    var hqPct = total ? Math.round((hqTotal / total) * 1000) / 10 : 0;
-    var avgPer = valid.length ? Math.round(total / valid.length) : 0;
-    document.getElementById('tile-total-value').textContent = fmt(total);
-    document.getElementById('tile-total-sub').textContent = '총 ' + valid.length + '건 · 건당 ' + fmt(avgPer) + '원 · 제외 ' + excluded + '건';
-    var mkSplitPct = total ? Math.round(1000 - hqPct * 10) / 10 : 0;
-    document.getElementById('split-hq').textContent = fmt(hqTotal) + '원 · ' + hqValid.length + '건 · ' + Math.round(hqPct) + '%';
-    document.getElementById('split-mk').textContent = fmt(mkTotal) + '원 · ' + mkAll.length + '건 · ' + Math.round(mkSplitPct) + '%';
-    document.getElementById('split-bar-hq').style.width = hqPct + '%';
-    document.getElementById('split-bar-mk').style.width = mkSplitPct + '%';
-    var deltaAmtEl = document.getElementById('delta-amt');
-    var deltaCntEl = document.getElementById('delta-cnt');
-    deltaAmtEl.textContent = deltaHTML(total, PREV_BUSINESS_DAY.amt);
-    deltaAmtEl.className = 'delta-value ' + deltaClass(total, PREV_BUSINESS_DAY.amt);
-    deltaCntEl.textContent = deltaHTML(valid.length, PREV_BUSINESS_DAY.cnt);
-    deltaCntEl.className = 'delta-value ' + deltaClass(valid.length, PREV_BUSINESS_DAY.cnt);
-    var byAgent = {};
-    hqValid.forEach(function (r) {
-      var name = hqDisplayName(r.agent);
-      if (!byAgent[name]) byAgent[name] = { name: name, value: 0, count: 0 };
-      byAgent[name].value += r.amt; byAgent[name].count += 1;
-    });
-    var agentList = Object.keys(byAgent).map(function (k) { return byAgent[k]; }).sort(function (a, b) { return b.value - a.value; });
-    document.getElementById('hq-bars').innerHTML = agentList.length ? buildBarsHTML(agentList, { showCount: true }) : '<div class="empty-state">오늘 본사 매출 없음</div>';
-    var byChannel = {};
-    mkAll.forEach(function (r) {
-      var name = r.agent;
-      if (!byChannel[name]) byChannel[name] = { name: name, value: 0 };
-      byChannel[name].value += 1;
-    });
-    var channelList = Object.keys(byChannel).map(function (k) { return byChannel[k]; }).sort(function (a, b) { return b.value - a.value; });
-    document.getElementById('mk-bars').innerHTML = channelList.length ? buildBarsHTML(channelList, { unit: '건' }) : '<div class="empty-state">오늘 오픈마켓 접수 없음</div>';
-    var catCount = {}, catHQ = {}, catMK = {};
-    withAgent.forEach(function (r) {
-      var cat = categorize(r.item);
-      catCount[cat] = (catCount[cat] || 0) + 1;
-      if (isHQ(r.agent)) catHQ[cat] = (catHQ[cat] || 0) + 1; else catMK[cat] = (catMK[cat] || 0) + 1;
-    });
-    var catList = Object.keys(catCount).map(function (k) { return { name: k, value: catCount[k] }; }).sort(function (a, b) { return b.value - a.value; });
-    document.getElementById('cat-top-bars').innerHTML = buildBarsHTML(catList, { unit: '건', accent: true });
-    function tableRows(obj) {
-      return Object.keys(obj).sort(function (a, b) { return obj[b] - obj[a]; }).map(function (k) { return '<tr><td>' + esc(k) + '</td><td>' + obj[k] + '건</td></tr>'; }).join('');
-    }
-    document.getElementById('cat-hq-table').innerHTML = tableRows(catHQ) || '<tr><td colspan="2">데이터 없음</td></tr>';
-    document.getElementById('cat-mk-table').innerHTML = tableRows(catMK) || '<tr><td colspan="2">데이터 없음</td></tr>';
-    document.getElementById('cat-hq-title').textContent = '본사(' + hqAll.length + '건)';
-    document.getElementById('cat-mk-title').textContent = '오픈마켓(' + mkAll.length + '건)';
-    renderTop5(valid);
-    renderWeekList(valid);
-    document.getElementById('foot-excluded').innerHTML = '<strong>미정·취소 등 제외 ' + excluded + '건' + ((mkAll.length - mkValid.length) ? ' (오픈마켓 금액칸 미기재 ' + (mkAll.length - mkValid.length) + '건 포함)' : '') + '</strong>';
-    var now = new Date();
-    var hh = String(now.getHours()).padStart(2, '0');
-    var mm = String(now.getMinutes()).padStart(2, '0');
-    var mo = String(now.getMonth() + 1).padStart(2, '0');
-    var dd = String(now.getDate()).padStart(2, '0');
-    document.getElementById('asof-time').textContent = mo + '/' + dd + ' ' + hh + ':' + mm + ' (지금 내 화면만 갱신)';
+    var withAgent=allRows.filter(function(r){return r.agent&&r.agent.trim();});
+    var valid=withAgent.filter(function(r){return r.amt!==null;});
+    var excluded=withAgent.length-valid.length;
+    var hqValid=valid.filter(function(r){return isHQ(r.agent);});
+    var mkValid=valid.filter(function(r){return !isHQ(r.agent);});
+    var hqAll=withAgent.filter(function(r){return isHQ(r.agent);});
+    var mkAll=withAgent.filter(function(r){return !isHQ(r.agent);});
+    var total=valid.reduce(function(s,r){return s+r.amt;},0);
+    var hqTotal=hqValid.reduce(function(s,r){return s+r.amt;},0);
+    var mkTotal=mkValid.reduce(function(s,r){return s+r.amt;},0);
+    var hqPct=total?Math.round((hqTotal/total)*1000)/10:0;
+    var avgPer=valid.length?Math.round(total/valid.length):0;
+    document.getElementById('tile-total-value').textContent=fmt(total);
+    document.getElementById('tile-total-sub').textContent='총 '+valid.length+'건 · 건당 '+fmt(avgPer)+'원 · 제외 '+excluded+'건';
+    var mkSplitPct=total?Math.round(1000-hqPct*10)/10:0;
+    document.getElementById('split-hq').textContent=fmt(hqTotal)+'원 · '+hqValid.length+'건 · '+Math.round(hqPct)+'%';
+    document.getElementById('split-mk').textContent=fmt(mkTotal)+'원 · '+mkAll.length+'건 · '+Math.round(mkSplitPct)+'%';
+    document.getElementById('split-bar-hq').style.width=hqPct+'%';
+    document.getElementById('split-bar-mk').style.width=mkSplitPct+'%';
+    var deltaAmtEl=document.getElementById('delta-amt'); var deltaCntEl=document.getElementById('delta-cnt');
+    deltaAmtEl.textContent=deltaHTML(total,PREV_BUSINESS_DAY.amt); deltaAmtEl.className='delta-value '+deltaClass(total,PREV_BUSINESS_DAY.amt);
+    deltaCntEl.textContent=deltaHTML(valid.length,PREV_BUSINESS_DAY.cnt); deltaCntEl.className='delta-value '+deltaClass(valid.length,PREV_BUSINESS_DAY.cnt);
+    var byAgent={}; hqValid.forEach(function(r){ var name=hqDisplayName(r.agent); if(!byAgent[name]) byAgent[name]={name:name,value:0,count:0}; byAgent[name].value+=r.amt; byAgent[name].count+=1; });
+    var agentList=Object.keys(byAgent).map(function(k){return byAgent[k];}).sort(function(a,b){return b.value-a.value;});
+    document.getElementById('hq-bars').innerHTML=agentList.length?buildBarsHTML(agentList,{showCount:true}):'<div class="empty-state">오늘 본사 매출 없음</div>';
+    var byChannel={}; mkAll.forEach(function(r){ var name=r.agent; if(!byChannel[name]) byChannel[name]={name:name,value:0}; byChannel[name].value+=1; });
+    var channelList=Object.keys(byChannel).map(function(k){return byChannel[k];}).sort(function(a,b){return b.value-a.value;});
+    document.getElementById('mk-bars').innerHTML=channelList.length?buildBarsHTML(channelList,{unit:'건'}):'<div class="empty-state">오늘 오픈마켓 접수 없음</div>';
+    var catCount={},catHQ={},catMK={};
+    withAgent.forEach(function(r){ var cat=categorize(r.item); catCount[cat]=(catCount[cat]||0)+1; if(isHQ(r.agent)) catHQ[cat]=(catHQ[cat]||0)+1; else catMK[cat]=(catMK[cat]||0)+1; });
+    var catList=Object.keys(catCount).map(function(k){return {name:k,value:catCount[k]};}).sort(function(a,b){return b.value-a.value;});
+    document.getElementById('cat-top-bars').innerHTML=buildBarsHTML(catList,{unit:'건',accent:true});
+    function tableRows(obj) { return Object.keys(obj).sort(function(a,b){return obj[b]-obj[a];}).map(function(k){return '<tr><td>'+esc(k)+'</td><td>'+obj[k]+'건</td></tr>';}).join(''); }
+    document.getElementById('cat-hq-table').innerHTML=tableRows(catHQ)||'<tr><td colspan="2">데이터 없음</td></tr>';
+    document.getElementById('cat-mk-table').innerHTML=tableRows(catMK)||'<tr><td colspan="2">데이터 없음</td></tr>';
+    document.getElementById('cat-hq-title').textContent='본사('+hqAll.length+'건)';
+    document.getElementById('cat-mk-title').textContent='오픈마켓('+mkAll.length+'건)';
+    renderTop5(valid); renderWeekList(valid);
+    document.getElementById('foot-excluded').innerHTML='<strong>미정·취소 등 제외 '+excluded+'건'+((mkAll.length-mkValid.length)?' (오픈마켓 금액칸 미기재 '+(mkAll.length-mkValid.length)+'건 포함)':'')+'</strong>';
+    var now=new Date(); var hh=String(now.getHours()).padStart(2,'0'); var mm=String(now.getMinutes()).padStart(2,'0'); var mo=String(now.getMonth()+1).padStart(2,'0'); var dd=String(now.getDate()).padStart(2,'0');
+    document.getElementById('asof-time').textContent=mo+'/'+dd+' '+hh+':'+mm+' (지금 내 화면만 갱신)';
   }
-
   async function doSync() {
-    var btn = document.getElementById('btn-sync');
-    if (!SYNC_ENDPOINT) { setStatus('동기화 엔드포인트가 아직 설정되지 않았어요.', true); return; }
-    btn.disabled = true;
-    setStatus('동기화 중…');
+    var btn=document.getElementById('btn-sync');
+    if(!SYNC_ENDPOINT) { setStatus('동기화 엔드포인트가 아직 설정되지 않았어요.', true); return; }
+    btn.disabled=true; setStatus('동기화 중…');
     try {
-      var res = await fetch(SYNC_ENDPOINT, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var payload = await res.json();
-      var b64 = payload.content;
-      if (!b64) throw new Error('응답에 파일 내용이 없어요.');
-      var binary = atob(b64);
-      var bytes = new Uint8Array(binary.length);
-      for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-      var text = new TextDecoder('utf-8').decode(bytes);
-      var table = parseCSV(text);
-      if (table.length < 2) throw new Error('오늘 데이터가 비어 있어요.');
-      var rows = table.slice(1).map(function (row) {
-        return { agent: row[3] || '', amt: parseAmount(row[17]), title: (row[11] || '').trim(), item: (row[12] || '').trim() };
-      });
+      var res=await fetch(SYNC_ENDPOINT, {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      var payload=await res.json();
+      var b64=payload.content;
+      if(!b64) throw new Error('응답에 파일 내용이 없어요.');
+      var binary=atob(b64); var bytes=new Uint8Array(binary.length);
+      for(var i=0;i<binary.length;i++) bytes[i]=binary.charCodeAt(i);
+      var text=new TextDecoder('utf-8').decode(bytes);
+      var table=parseCSV(text);
+      if(table.length<2) throw new Error('오늘 데이터가 비어 있어요.');
+      var rows=table.slice(1).map(function(row){ return {agent:row[3]||'',amt:parseAmount(row[17]),title:(row[11]||'').trim(),item:(row[12]||'').trim()}; });
       applySync(rows);
-      setStatus('동기화 완료 (' + new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + ')');
-    } catch (err) {
-      setStatus('동기화 실패: ' + (err && err.message ? err.message : '알 수 없는 오류'), true);
-    } finally {
-      btn.disabled = false;
-    }
+      setStatus('동기화 완료 ('+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'})+')');
+    } catch(err) {
+      setStatus('동기화 실패: '+(err&&err.message?err.message:'알 수 없는 오류'), true);
+    } finally { btn.disabled=false; }
   }
   document.getElementById('btn-sync').addEventListener('click', doSync);
 })();
