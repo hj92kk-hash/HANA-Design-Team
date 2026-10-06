@@ -77,27 +77,27 @@
   @media (min-width:640px) { .twocol { display:grid; grid-template-columns:1fr 1fr; } .panels { display:grid; grid-template-columns:1fr 1fr; } }
 </style></head><body><div class="page">
 <div class="head"><div class="eyebrow">HANASM · 공개 리포트</div><h1>하나사인몰 오늘 매출</h1>
-<div class="asof"><strong id="asof-time">10/05 09:15 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div></div>
+<div class="asof"><strong id="asof-time">10/06 09:15 (자동갱신)</strong> 기준 · <span class="badge">읽기 전용 공개 페이지</span></div></div>
 <div class="toolbar"><button class="btn primary" id="btn-sync" type="button">🔄 지금 동기화</button><span class="toolbar-status" id="toolbar-status"></span></div>
 <div class="today-card"><div class="today-card-top"><div class="today-main">
-<div class="today-label">오늘 총매출 <span class="today-date" id="today-date">· 2026.10.5(월)</span></div>
-<div class="today-value"><span id="tile-total-value">0</span><span class="unit">원</span></div>
-<div class="today-sub" id="tile-total-sub">총 0건 · 건당 0원 · 제외 0건</div></div>
-<div class="today-deltas"><div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value down" id="delta-amt">▼100.0%</div></div>
-<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down" id="delta-cnt">▼100.0%</div></div></div></div>
+<div class="today-label">오늘 총매출 <span class="today-date" id="today-date">· 2026.10.6(화)</span></div>
+<div class="today-value"><span id="tile-total-value">660,000</span><span class="unit">원</span></div>
+<div class="today-sub" id="tile-total-sub">총 1건 · 건당 660,000원 · 제외 1건</div></div>
+<div class="today-deltas"><div class="delta-card"><div class="delta-label">전일대비 매출</div><div class="delta-value down" id="delta-amt">▼94.2%</div></div>
+<div class="delta-card"><div class="delta-label">전일대비 건수</div><div class="delta-value down" id="delta-cnt">▼98.8%</div></div></div></div>
 <div class="today-split"><div class="split-legend">
-<span class="split-item hq"><span class="dot hq"></span>본사 <b id="split-hq">0원 · 0건 · 0%</b></span>
+<span class="split-item hq"><span class="dot hq"></span>본사 <b id="split-hq">660,000원 · 1건 · 100%</b></span>
 <span class="split-item market"><span class="dot market"></span>오픈마켓 <b id="split-mk">0원 · 0건 · 0%</b></span></div>
-<div class="split-bar"><div class="split-bar-hq" id="split-bar-hq" style="width:0%"></div><div class="split-bar-mk" id="split-bar-mk" style="width:0%"></div></div></div></div>
-<div class="twocol"><section><h2 class="sec">⭐ 오늘 매출 TOP5</h2><div class="card"><div class="ranklist" id="today-top5"></div></div></section>
-<section><h2 class="sec">📈 오늘 거래처별 매출</h2><div class="card"><div class="ranklist" id="week-list"></div><div class="sec-note" id="week-list-note"></div></div></section></div>
-<div class="panels"><div class="panel hq"><div class="panel-title"><span class="dot hq"></span>본사 진행자별</div><div class="bars" id="hq-bars"><div class="empty-state">오늘 본사 매출 없음</div></div></div>
+<div class="split-bar"><div class="split-bar-hq" id="split-bar-hq" style="width:100.0%"></div><div class="split-bar-mk" id="split-bar-mk" style="width:0.0%"></div></div></div></div>
+<div class="twocol"><section><h2 class="sec">⭐ 오늘 매출 TOP5</h2><div class="card"><div class="ranklist" id="today-top5"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">더퍼스트데시앙아파트입주자대표회의 <span class="rank-agent">· 정란</span></div><div class="rank-sub">무점착-주차스티커(민무늬홀로그램)-1,000매 \[50\*70\]</div></div><div class="rank-value">660,000원</div></div></div></div></section>
+<section><h2 class="sec">📈 오늘 거래처별 매출</h2><div class="card"><div class="ranklist" id="week-list"><div class="rank-row"><div class="rank-num">1</div><div class="rank-body"><div class="rank-title">더퍼스트데시앙아파트입주자대표회의</div></div><div class="rank-value">660,000원</div></div></div><div class="sec-note" id="week-list-note"></div></div></section></div>
+<div class="panels"><div class="panel hq"><div class="panel-title"><span class="dot hq"></span>본사 진행자별</div><div class="bars" id="hq-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">정란</span><span class="bar-value">660,000원 · 1건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div></div></div></div>
 <div class="panel market"><div class="panel-title"><span class="dot market"></span>오픈마켓 채널별 <span class="sec-note">건수 기준</span></div><div class="bars" id="mk-bars"><div class="empty-state">오늘 오픈마켓 접수 없음</div></div></div></div>
-<section><h2 class="sec">🏷️ 품목 카테고리 TOP <span class="sec-note">오늘 · 건수 기준(본사+오픈마켓)</span></h2><div class="card"><div class="bars" id="cat-top-bars"></div></div></section>
+<section><h2 class="sec">🏷️ 품목 카테고리 TOP <span class="sec-note">오늘 · 건수 기준(본사+오픈마켓)</span></h2><div class="card"><div class="bars" id="cat-top-bars"><div class="bar-row"><div class="bar-meta"><span class="bar-name">스티커</span><span class="bar-value">2건</span></div><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--accent)"></div></div></div></div></div></section>
 <section><h2 class="sec">📦 품목 카테고리별 합계 <span class="sec-note">오늘</span></h2><div class="twocol">
-<div class="card"><table class="mtable"><thead><tr><th id="cat-hq-title">본사(0건)</th><th>건수</th></tr></thead><tbody id="cat-hq-table"><tr><td colspan="2">데이터 없음</td></tr></tbody></table></div>
+<div class="card"><table class="mtable"><thead><tr><th id="cat-hq-title">본사(2건)</th><th>건수</th></tr></thead><tbody id="cat-hq-table"><tr><td>스티커</td><td>2건</td></tr></tbody></table></div>
 <div class="card"><table class="mtable"><thead><tr><th id="cat-mk-title">오픈마켓(0건)</th><th>건수</th></tr></thead><tbody id="cat-mk-table"><tr><td colspan="2">데이터 없음</td></tr></tbody></table></div></div></section>
-<div class="foot"><div id="foot-excluded"><strong>미정·취소 등 제외 0건</strong></div>
+<div class="foot"><div id="foot-excluded"><strong>미정·취소 등 제외 1건</strong></div>
 <div>이 페이지는 로그인 없이 누구나 볼 수 있는 읽기 전용 공개 리포트입니다. 평일 9~19시 매시간 자동 갱신되고, <strong>🔄 지금 동기화</strong> 버튼으로 그 사이에도 내 화면만 즉시 새로고침할 수 있습니다.</div>
 <div>월별/주간 누적, 재구매 이력 등은 이 페이지에 포함되지 않습니다 (오늘 매출 전용).</div></div>
 </div>
